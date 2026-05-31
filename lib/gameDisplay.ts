@@ -1,0 +1,25 @@
+import { SPURS_ALIAS } from "./constants";
+import type { GameDisplay, NBAGameStatus } from "./types";
+
+export function isPregameGame(status: NBAGameStatus): boolean {
+  return status === "scheduled" || status === "if-necessary";
+}
+
+export function isPossibleGame(game: GameDisplay): boolean {
+  const title = game.title?.toLowerCase() ?? "";
+  const matchup = game.preview.keyMatchup.toLowerCase();
+  return (
+    game.status === "if-necessary" ||
+    title.includes("if necessary") ||
+    title.includes("if-necessary") ||
+    matchup.includes("if necessary")
+  );
+}
+
+export function cleanGameTitle(title?: string): string | undefined {
+  return title?.replace(/\s*\(if necessary\)/i, "").trim();
+}
+
+export function isSpursHome(game: GameDisplay): boolean {
+  return game.homeTeam.alias === SPURS_ALIAS;
+}
