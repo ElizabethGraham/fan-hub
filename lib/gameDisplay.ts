@@ -20,6 +20,12 @@ export function cleanGameTitle(title?: string): string | undefined {
   return title?.replace(/\s*\(if necessary\)/i, "").trim();
 }
 
+export function gameSpotlightLabel(game: GameDisplay): string {
+  if (game.status === "live") return "Live Now";
+  if (game.status === "final") return "Latest Result";
+  return "Next Up";
+}
+
 export function isSpursHome(game: GameDisplay): boolean {
   return game.homeTeam.alias === SPURS_ALIAS;
 }
