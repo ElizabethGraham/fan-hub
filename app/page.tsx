@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import FeaturedGame from "@/components/FeaturedGame";
 import GameSection from "@/components/GameSection";
 import Layout from "@/components/Layout";
@@ -232,6 +233,35 @@ async function getPlayoffSnapshot(
     trend,
     leaders,
   };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const all = await getSeasonSchedule();
+    const spursGames = all.filter(
+      (g) =>
+        g.homeTeam.alias === SPURS_ALIAS || g.awayTeam.alias === SPURS_ALIAS,
+    );
+    const scheduledCount = spursGames.filter(
+      (g) => g.status === "scheduled",
+    ).length;
+    const liveCount = spursGames.filter((g) => g.status === "live").length;
+    return {
+      title: "Spurs Fan Hub - San Antonio Spurs Games & Analysis",
+      description: `Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats. ${scheduledCount} games coming up${liveCount > 0 ? `, ${liveCount} live` : ""}.`,
+      openGraph: {
+        title: "Spurs Fan Hub - San Antonio Spurs Games & Analysis",
+        description: `Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats. ${scheduledCount} games coming up${liveCount > 0 ? `, ${liveCount} live` : ""}.`,
+        type: "website",
+      },
+    };
+  } catch {
+    return {
+      title: "Spurs Fan Hub - San Antonio Spurs Games & Analysis",
+      description:
+        "Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.",
+    };
+  }
 }
 
 export default async function Home() {
