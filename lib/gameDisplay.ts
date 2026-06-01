@@ -1,4 +1,5 @@
 import { SPURS_ALIAS } from "./constants";
+import { spursPlayoffStageForGame } from "./playoffs";
 import type { GameDisplay, NBAGameStatus } from "./types";
 
 export function isPregameGame(status: NBAGameStatus): boolean {
@@ -18,6 +19,14 @@ export function isPossibleGame(game: GameDisplay): boolean {
 
 export function cleanGameTitle(title?: string): string | undefined {
   return title?.replace(/\s*\(if necessary\)/i, "").trim();
+}
+
+export function gameDisplayLabel(game: GameDisplay): string | null {
+  const title = cleanGameTitle(game.title);
+  const stage = spursPlayoffStageForGame(game);
+  if (!title && !stage) return null;
+  if (title && stage) return `${stage}: ${title}`;
+  return stage ?? title ?? null;
 }
 
 export function gameSpotlightLabel(game: GameDisplay): string {
