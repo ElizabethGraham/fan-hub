@@ -4,6 +4,7 @@ import TeamComparison from "@/components/TeamComparison";
 import StartingLineups from "@/components/StartingLineups";
 import PlayersToWatch from "@/components/PlayersToWatch";
 import GameCharts from "@/components/GameCharts";
+import JerseyShop from "@/components/JerseyShop";
 import Layout from "@/components/Layout";
 import { getSeasonSchedule } from "@/lib/schedule";
 import { getNBASeasonYear } from "@/lib/nba";
@@ -283,6 +284,8 @@ export default async function GameDetailPage({ params }: Props) {
           awayStats={awayStats}
           chartData={chartData}
         />
+
+        <JerseyShop />
       </div>
     </Layout>
   );
