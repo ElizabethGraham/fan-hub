@@ -347,8 +347,9 @@ export default function GameCharts({
 
   const showQuarters = !!chartData?.periods.length;
   const hasPerQuarterStatData =
-    chartData?.periods.some((p) => p.homeStats !== undefined || p.awayStats !== undefined) ??
-    false;
+    chartData?.periods.some(
+      (p) => p.homeStats !== undefined || p.awayStats !== undefined,
+    ) ?? false;
   const sectionLabel = isPregame ? "Season Averages" : "Game Stats";
   const isDerived = !chartData && hasDerivedStats;
   const availableMetrics = METRICS;
@@ -454,16 +455,25 @@ export default function GameCharts({
             </div>
             {selectedMetricDef && !hasPerQuarterStatData && (
               <p className="text-[10px] text-ui-muted mb-2">
-                Quarter-level {selectedMetricDef.label} not available; showing points.
+                Quarter-level {selectedMetricDef.label} not available; showing
+                points.
               </p>
             )}
             <QuarterChart
               periods={chartData.periods}
               homeAbbr={game.homeTeam.alias}
               awayAbbr={game.awayTeam.alias}
-              metric={hasPerQuarterStatData ? (selectedMetricDef?.key ?? null) : null}
-              metricLabel={selectedMetricDef && hasPerQuarterStatData ? selectedMetricDef.label : "PTS"}
-              isPercent={hasPerQuarterStatData ? selectedMetricDef?.isPercent : undefined}
+              metric={
+                hasPerQuarterStatData ? (selectedMetricDef?.key ?? null) : null
+              }
+              metricLabel={
+                selectedMetricDef && hasPerQuarterStatData
+                  ? selectedMetricDef.label
+                  : "PTS"
+              }
+              isPercent={
+                hasPerQuarterStatData ? selectedMetricDef?.isPercent : undefined
+              }
               animated={animated}
               selectedIndex={selectedPeriodIndex}
               onSelect={setSelectedPeriodIndex}

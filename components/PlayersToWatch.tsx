@@ -20,10 +20,14 @@ function sectionTitle(status: GameDisplay["status"]): string {
   return "Spurs Players to Watch";
 }
 
-function findStats(stats: NBAPlayerStats[], player: NBAPlayer): NBAPlayerStats | undefined {
+function findStats(
+  stats: NBAPlayerStats[],
+  player: NBAPlayer,
+): NBAPlayerStats | undefined {
   const full = `${player.first_name} ${player.last_name}`.toLowerCase();
   return stats.find(
-    (s) => `${s.player.first_name} ${s.player.last_name}`.toLowerCase() === full,
+    (s) =>
+      `${s.player.first_name} ${s.player.last_name}`.toLowerCase() === full,
   );
 }
 
@@ -38,7 +42,10 @@ function statScore(stats: NBAPlayerStats): number {
   );
 }
 
-function spursWatchPlayers(players: NBAPlayer[], stats: NBAPlayerStats[]): NBAPlayer[] {
+function spursWatchPlayers(
+  players: NBAPlayer[],
+  stats: NBAPlayerStats[],
+): NBAPlayer[] {
   if (stats.length > 0) return [];
   return [...players]
     .sort((a, b) => {
@@ -53,7 +60,9 @@ function spursWatchPlayers(players: NBAPlayer[], stats: NBAPlayerStats[]): NBAPl
 function StatPill({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-lg border border-zinc-700/70 bg-zinc-950/40 px-2.5 py-2 text-center">
-      <div className="text-base font-black text-white tabular-nums">{value}</div>
+      <div className="text-base font-black text-white tabular-nums">
+        {value}
+      </div>
       <div className="text-[8px] font-black uppercase tracking-widest text-ui-muted">
         {label}
       </div>
@@ -105,7 +114,13 @@ function StandoutCard({ stats }: { stats: NBAPlayerStats }) {
   );
 }
 
-function WatchCard({ player, stats }: { player: NBAPlayer; stats?: NBAPlayerStats }) {
+function WatchCard({
+  player,
+  stats,
+}: {
+  player: NBAPlayer;
+  stats?: NBAPlayerStats;
+}) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-800/45 p-3">
       <PlayerAvatar
@@ -160,7 +175,10 @@ export default function PlayersToWatch({
       {standouts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {standouts.map((stats) => (
-            <StandoutCard key={stats.player.srId ?? stats.player.id} stats={stats} />
+            <StandoutCard
+              key={stats.player.srId ?? stats.player.id}
+              stats={stats}
+            />
           ))}
         </div>
       ) : watchPlayers.length > 0 ? (
