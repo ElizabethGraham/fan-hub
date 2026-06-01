@@ -236,6 +236,26 @@ export type SRDepthChart = {
 
 export type SRTeamSeasonStats = {
   id?: string;
+  own_record?: {
+    total?: {
+      field_goals_made?: number;
+      field_goals_att?: number;
+      field_goals_pct?: number;
+      three_points_made?: number;
+      three_points_att?: number;
+      three_points_pct?: number;
+    };
+    average?: {
+      rebounds?: number;
+      assists?: number;
+      steals?: number;
+      turnovers?: number;
+      field_goals_made?: number;
+      field_goals_att?: number;
+      three_points_made?: number;
+      three_points_att?: number;
+    };
+  };
   players?: Array<{
     id?: string;
     full_name?: string;
@@ -244,6 +264,12 @@ export type SRTeamSeasonStats = {
       minus?: number;
       efficiency?: number;
       points?: number;
+      field_goals_made?: number;
+      field_goals_att?: number;
+      field_goals_pct?: number;
+      three_points_made?: number;
+      three_points_att?: number;
+      three_points_pct?: number;
     };
     average?: {
       points?: number;
@@ -251,8 +277,10 @@ export type SRTeamSeasonStats = {
       assists?: number;
       steals?: number;
       turnovers?: number;
-      field_goals_pct?: number;
-      three_points_pct?: number;
+      field_goals_made?: number;
+      field_goals_att?: number;
+      three_points_made?: number;
+      three_points_att?: number;
       efficiency?: number;
     };
   }>;

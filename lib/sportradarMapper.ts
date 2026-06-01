@@ -21,6 +21,7 @@ import {
   DATE_KEY_LOCALE,
   SPURS_ALIAS,
 } from "./constants";
+import { spursPlayoffStageForTeams } from "./playoffs";
 
 // Convert a SR GUID to a stable numeric ID (safe up to ~4 billion).
 // Used for NBAPlayer.id — players have no other stable numeric key.
@@ -152,19 +153,34 @@ type SeasonAvgs = {
   fg3Pct: number;
 };
 
+function normalizePct(value?: number): number | undefined {
+  if (value === undefined) return undefined;
+  return value <= 1 ? value * 100 : value;
+}
+
+function pctFromMadeAtt(made?: number, att?: number): number {
+  return att && att > 0 && made !== undefined ? (made / att) * 100 : 0;
+}
+
 function buildSeasonAvgsMap(stats: SRTeamSeasonStats): Map<string, SeasonAvgs> {
   const map = new Map<string, SeasonAvgs>();
   for (const p of stats.players ?? []) {
     const ppg = p.average?.points;
     if (p.id && ppg !== undefined) {
+      const fgPct =
+        normalizePct(p.total?.field_goals_pct) ??
+        pctFromMadeAtt(p.average?.field_goals_made, p.average?.field_goals_att);
+      const fg3Pct =
+        normalizePct(p.total?.three_points_pct) ??
+        pctFromMadeAtt(p.average?.three_points_made, p.average?.three_points_att);
       map.set(p.id, {
         ppg,
         rpg: p.average?.rebounds ?? 0,
         apg: p.average?.assists ?? 0,
         spg: p.average?.steals ?? 0,
         tov: p.average?.turnovers ?? 0,
-        fgPct: p.average?.field_goals_pct ?? 0,
-        fg3Pct: p.average?.three_points_pct ?? 0,
+        fgPct,
+        fg3Pct,
       });
     }
   }
@@ -234,16 +250,33 @@ export function teamSeasonChartStatsFromPlayers(
   };
 }
 
+export function teamSeasonChartStats(
+  stats: SRTeamSeasonStats,
+): NBAGameChartData["homeStats"] | null {
+  const total = stats.own_record?.total;
+  const average = stats.own_record?.average;
+  if (!total && !average) return null;
+
+  return {
+    fgPct:
+      normalizePct(total?.field_goals_pct) ??
+      pctFromMadeAtt(average?.field_goals_made, average?.field_goals_att),
+    fg3Pct:
+      normalizePct(total?.three_points_pct) ??
+      pctFromMadeAtt(average?.three_points_made, average?.three_points_att),
+    reb: average?.rebounds ?? 0,
+    ast: average?.assists ?? 0,
+    stl: average?.steals ?? 0,
+    tov: average?.turnovers ?? 0,
+  };
+}
+
 export function srSummaryToSplitStats(summary: SRGameSummary) {
   return {
     homeStats: mapSideStats(summary.home),
     awayStats: mapSideStats(summary.away),
     chartData: srSummaryToChartData(summary),
   };
-}
-
-function pctFromMadeAtt(made?: number, att?: number): number {
-  return att && att > 0 && made !== undefined ? (made / att) * 100 : 0;
 }
 
 function mapTeamChartStats(
@@ -400,7 +433,7 @@ function srGameTipOff(game: SRGameRef): string | null {
   }
 }
 
-// en-CA locale produces YYYY-MM-DD natively, converted to Central Time.
+// DATE_KEY_LOCALE produces YYYY-MM-DD natively, converted to Central Time.
 function srGameDate(game: SRGameRef): string {
   if (!game.scheduled) return "";
   return new Intl.DateTimeFormat(DATE_KEY_LOCALE, {
@@ -441,6 +474,7 @@ export function srScheduleToGameDisplays(
         : awayTeam.name;
       const isSpursHome = homeTeam.alias === SPURS_ALIAS;
       const opponentFull = isSpursHome ? awayFull : homeFull;
+      const playoffStage = spursPlayoffStageForTeams(homeTeam, awayTeam);
 
       const headline =
         status === "final"
@@ -455,6 +489,7 @@ export function srScheduleToGameDisplays(
         time: srGameTipOff(g),
         status,
         title,
+        playoffStage,
         homeTeam,
         awayTeam,
         homeTeamScore: g.home_points ?? 0,

@@ -32,6 +32,7 @@ export function gameDisplayLabel(game: GameDisplay): string | null {
 export function gameSpotlightLabel(game: GameDisplay): string {
   if (game.status === "live") return "Live Now";
   if (game.status === "final") return "Latest Result";
+  if (isPossibleGame(game)) return "Possible Game";
   return "Next Up";
 }
 
