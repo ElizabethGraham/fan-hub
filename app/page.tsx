@@ -1,4 +1,5 @@
-import GameCard from "@/components/GameCard";
+import FeaturedGame from "@/components/FeaturedGame";
+import GameSection from "@/components/GameSection";
 import Layout from "@/components/Layout";
 import PlayoffSnapshot, {
   type PlayoffGameLeader,
@@ -14,7 +15,7 @@ import {
   DATE_KEY_LOCALE,
   SPURS_ALIAS,
 } from "@/lib/constants";
-import { gameSpotlightLabel, isPossibleGame } from "@/lib/gameDisplay";
+import { isPossibleGame } from "@/lib/gameDisplay";
 import { spursOpponent, spursSeriesLabel } from "@/lib/playoffs";
 import type {
   GameDisplay,
@@ -233,56 +234,6 @@ async function getPlayoffSnapshot(
   };
 }
 
-function Section({
-  title,
-  description,
-  games,
-}: {
-  title: string;
-  description?: string;
-  games: GameDisplay[];
-}) {
-  if (games.length === 0) return null;
-
-  return (
-    <section>
-      <div className="mb-3 flex items-end justify-between gap-3">
-        <div>
-          <h2 className="text-xs font-black text-ui-muted uppercase tracking-widest">
-            {title}
-          </h2>
-          {description && (
-            <p className="mt-1 text-xs text-ui-muted">{description}</p>
-          )}
-        </div>
-      </div>
-      <div className="grid gap-3">
-        {games.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function NextUp({ game }: { game: GameDisplay }) {
-  return (
-    <section>
-      <div className="mb-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-xs font-black text-fiesta-teal uppercase tracking-widest">
-            {gameSpotlightLabel(game)}
-          </h2>
-        </div>
-        <p className="mt-1 text-xs text-ui-muted">
-          Start here: the most relevant Spurs game for fans right now.
-        </p>
-      </div>
-      <GameCard game={game} />
-    </section>
-  );
-}
-
 export default async function Home() {
   let games: GameDisplay[] = [];
   let playoffSnapshot: PlayoffSnapshotData | null = null;
@@ -321,29 +272,29 @@ export default async function Home() {
         <div className="grid gap-6">
           {sections.featured ? (
             <>
-              <NextUp game={sections.featured} />
+              <FeaturedGame game={sections.featured} />
 
               {playoffSnapshot && <PlayoffSnapshot data={playoffSnapshot} />}
 
-              <Section
+              <GameSection
                 title="Live Updates"
                 description="Games in progress right now."
                 games={sections.live}
               />
 
-              <Section
+              <GameSection
                 title="Recent Results"
                 description="Latest completed games."
                 games={sections.recent}
               />
 
-              <Section
+              <GameSection
                 title="Upcoming games"
                 description="Next scheduled matchups."
                 games={sections.confirmedUpcoming}
               />
 
-              <Section
+              <GameSection
                 title="Possible Games"
                 description="Conditional playoff dates."
                 games={sections.possibleUpcoming}
