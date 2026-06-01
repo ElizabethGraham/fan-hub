@@ -24,7 +24,9 @@ type LineupPlayer = {
   statMode?: "game" | "season";
 };
 
-function playerFullName(player: Pick<NBAPlayer, "first_name" | "last_name">): string {
+function playerFullName(
+  player: Pick<NBAPlayer, "first_name" | "last_name">,
+): string {
   return `${player.first_name} ${player.last_name}`.toLowerCase();
 }
 
@@ -34,11 +36,17 @@ function rosterMatch(
 ): NBAPlayer | undefined {
   return players.find((player) => {
     if (player.srId && statPlayer.srId) return player.srId === statPlayer.srId;
-    return playerFullName(player) === `${statPlayer.first_name} ${statPlayer.last_name}`.toLowerCase();
+    return (
+      playerFullName(player) ===
+      `${statPlayer.first_name} ${statPlayer.last_name}`.toLowerCase()
+    );
   });
 }
 
-function lineupFromStats(stats: NBAPlayerStats[], players: NBAPlayer[]): LineupPlayer[] {
+function lineupFromStats(
+  stats: NBAPlayerStats[],
+  players: NBAPlayer[],
+): LineupPlayer[] {
   return stats
     .filter((s) => s.player.starter)
     .slice(0, 5)
@@ -49,7 +57,8 @@ function lineupFromStats(stats: NBAPlayerStats[], players: NBAPlayer[]): LineupP
         firstName: s.player.first_name,
         lastName: s.player.last_name,
         position: s.player.position,
-        jerseyNumber: s.player.jersey_number ?? rosterPlayer?.jersey_number ?? null,
+        jerseyNumber:
+          s.player.jersey_number ?? rosterPlayer?.jersey_number ?? null,
         srId: s.player.srId,
         reference: s.player.reference ?? rosterPlayer?.reference,
         statLine: `${s.pts} pts · ${s.reb} reb · ${s.ast} ast`,
@@ -60,15 +69,24 @@ function lineupFromStats(stats: NBAPlayerStats[], players: NBAPlayer[]): LineupP
 
 function seasonAverageLine(player: NBAPlayer): string | null {
   const parts = [
-    player.seasonPpg !== undefined ? `${player.seasonPpg.toFixed(1)} ppg` : null,
-    player.seasonRpg !== undefined ? `${player.seasonRpg.toFixed(1)} reb` : null,
-    player.seasonApg !== undefined ? `${player.seasonApg.toFixed(1)} ast` : null,
+    player.seasonPpg !== undefined
+      ? `${player.seasonPpg.toFixed(1)} ppg`
+      : null,
+    player.seasonRpg !== undefined
+      ? `${player.seasonRpg.toFixed(1)} reb`
+      : null,
+    player.seasonApg !== undefined
+      ? `${player.seasonApg.toFixed(1)} ast`
+      : null,
   ].filter((part): part is string => Boolean(part));
 
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-function projectedLineup(players: NBAPlayer[], useSeasonAverages = false): LineupPlayer[] {
+function projectedLineup(
+  players: NBAPlayer[],
+  useSeasonAverages = false,
+): LineupPlayer[] {
   return [...players]
     .sort((a, b) => (a.depthChartRank ?? 99) - (b.depthChartRank ?? 99))
     .slice(0, 5)
@@ -80,7 +98,9 @@ function projectedLineup(players: NBAPlayer[], useSeasonAverages = false): Lineu
       jerseyNumber: p.jersey_number,
       srId: p.srId,
       reference: p.reference,
-      statLine: useSeasonAverages ? seasonAverageLine(p) ?? undefined : undefined,
+      statLine: useSeasonAverages
+        ? (seasonAverageLine(p) ?? undefined)
+        : undefined,
       statMode: useSeasonAverages ? "season" : undefined,
     }));
 }
