@@ -26,6 +26,7 @@ import {
   srSummaryToSplitStats,
   applyDepthChart,
   applySeasonStats,
+  teamSeasonChartStats,
   teamSeasonChartStatsFromPlayers,
 } from "@/lib/sportradarMapper";
 import { notFound } from "next/navigation";
@@ -73,9 +74,7 @@ function applyLastGameStarters(
     .filter((rank): rank is number => rank !== undefined);
   if (currentRanks.length >= 5) return players;
 
-  let nextRank = currentRanks.length
-    ? Math.max(...currentRanks) + 1
-    : 1;
+  let nextRank = currentRanks.length ? Math.max(...currentRanks) + 1 : 1;
   const rankBySrId = new Map(
     players
       .filter((player) => player.srId && player.depthChartRank !== undefined)
@@ -105,7 +104,9 @@ async function lastStarterStatsForTeam(
 
   try {
     const split = srSummaryToSplitStats(await fetchSRGameSummary(lastGame.id));
-    return lastGame.homeTeam.alias === alias ? split.homeStats : split.awayStats;
+    return lastGame.homeTeam.alias === alias
+      ? split.homeStats
+      : split.awayStats;
   } catch {
     return [];
   }
@@ -167,6 +168,8 @@ export default async function GameDetailPage({ params }: Props) {
   // ── Rosters: SR team GUIDs come directly from the cached schedule entry.
   let homePlayers: NBAPlayer[] = [];
   let awayPlayers: NBAPlayer[] = [];
+  let homeSeasonChartStats: NBAGameChartData["homeStats"] | null = null;
+  let awaySeasonChartStats: NBAGameChartData["awayStats"] | null = null;
 
   const homeSRTeamId = game.homeTeam.id;
   const awaySRTeamId = game.awayTeam.id;
@@ -196,23 +199,26 @@ export default async function GameDetailPage({ params }: Props) {
       awaySeason,
       homeLastStarters,
       awayLastStarters,
-    ] =
-      await Promise.allSettled([
-        fetchSRDepthChart(homeSRTeamId),
-        fetchSRDepthChart(awaySRTeamId),
-        fetchSRTeamSeasonStats(homeSRTeamId, seasonYear),
-        fetchSRTeamSeasonStats(awaySRTeamId, seasonYear),
-        lastStarterStatsForTeam(allGames, game.homeTeam.alias),
-        lastStarterStatsForTeam(allGames, game.awayTeam.alias),
-      ]);
+    ] = await Promise.allSettled([
+      fetchSRDepthChart(homeSRTeamId),
+      fetchSRDepthChart(awaySRTeamId),
+      fetchSRTeamSeasonStats(homeSRTeamId, seasonYear),
+      fetchSRTeamSeasonStats(awaySRTeamId, seasonYear),
+      lastStarterStatsForTeam(allGames, game.homeTeam.alias),
+      lastStarterStatsForTeam(allGames, game.awayTeam.alias),
+    ]);
     if (homeDepth.status === "fulfilled")
       homePlayers = applyDepthChart(homePlayers, homeDepth.value);
     if (awayDepth.status === "fulfilled")
       awayPlayers = applyDepthChart(awayPlayers, awayDepth.value);
-    if (homeSeason.status === "fulfilled")
+    if (homeSeason.status === "fulfilled") {
       homePlayers = applySeasonStats(homePlayers, homeSeason.value);
-    if (awaySeason.status === "fulfilled")
+      homeSeasonChartStats = teamSeasonChartStats(homeSeason.value);
+    }
+    if (awaySeason.status === "fulfilled") {
       awayPlayers = applySeasonStats(awayPlayers, awaySeason.value);
+      awaySeasonChartStats = teamSeasonChartStats(awaySeason.value);
+    }
     if (homeLastStarters.status === "fulfilled")
       homePlayers = applyLastGameStarters(homePlayers, homeLastStarters.value);
     if (awayLastStarters.status === "fulfilled")
@@ -235,8 +241,10 @@ export default async function GameDetailPage({ params }: Props) {
       /* SR summary unavailable */
     }
   } else if (isPregameGame(game.status)) {
-    const homeSeasonStats = teamSeasonChartStatsFromPlayers(homePlayers);
-    const awaySeasonStats = teamSeasonChartStatsFromPlayers(awayPlayers);
+    const homeSeasonStats =
+      homeSeasonChartStats ?? teamSeasonChartStatsFromPlayers(homePlayers);
+    const awaySeasonStats =
+      awaySeasonChartStats ?? teamSeasonChartStatsFromPlayers(awayPlayers);
     if (homeSeasonStats && awaySeasonStats) {
       chartData = {
         homeStats: homeSeasonStats,
