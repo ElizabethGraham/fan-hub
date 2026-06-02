@@ -5,6 +5,7 @@ import {
   SR_TEAM_PROFILE_REVALIDATE_SECONDS,
   SR_TEAM_SEASON_STATS_REVALIDATE_SECONDS,
 } from "./constants";
+import { logServerError } from "./serverLogger";
 
 const SR_API = "https://api.sportradar.com/nba";
 const ACCESS = process.env.SPORTRADAR_ACCESS_LEVEL ?? "trial";
@@ -20,14 +21,24 @@ function apiKey() {
 
 async function srFetch(path: string, revalidate: number) {
   const url = `${BASE}${path}`;
-  const res = await fetch(url, {
-    headers: { "x-api-key": apiKey() },
-    next: { revalidate },
-  });
-  if (!res.ok) {
-    throw new Error(`Sportradar ${path} → ${res.status} ${res.statusText}`);
+  try {
+    const res = await fetch(url, {
+      headers: { "x-api-key": apiKey() },
+      next: { revalidate },
+    });
+    if (!res.ok) {
+      throw new Error(`Sportradar ${path} -> ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+  } catch (error) {
+    logServerError("sportradar.request_failed", error, {
+      access: ACCESS,
+      path,
+      revalidate,
+      hasApiKey: Boolean(process.env.SPORTRADAR_API_KEY),
+    });
+    throw error;
   }
-  return res.json();
 }
 
 // Full roster + player profiles for a team. Cache for 24 h.
