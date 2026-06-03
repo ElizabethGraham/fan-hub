@@ -3,12 +3,13 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import confetti from 'canvas-confetti';
+import { FIESTA_TEAL, FIESTA_PINK, FIESTA_ORANGE, SPURS_SILVER } from '@/lib/constants';
 
 const SIZES = ['S', 'M', 'L', 'XL', '2XL'] as const;
 type Size = (typeof SIZES)[number];
 
 function fireConfetti() {
-  const colors = ['#00b2a9', '#e8338a', '#f58220', '#ffffff', '#c4ced4'];
+  const colors = [FIESTA_TEAL, FIESTA_PINK, FIESTA_ORANGE, '#ffffff', SPURS_SILVER];
   confetti({ particleCount: 80, spread: 70, origin: { y: 0.55 }, colors });
   setTimeout(
     () => confetti({ particleCount: 60, spread: 90, origin: { y: 0.45, x: 0.35 }, colors }),

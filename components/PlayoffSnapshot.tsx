@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import PlayerAvatar from '@/components/PlayerAvatar';
+import { FIESTA_TEAL } from '@/lib/constants';
 
 export type PlayoffTrendGame = {
   id: string;
@@ -135,7 +136,7 @@ function Sparkline({
       <polyline
         points={points((g) => g.spursPoints)}
         fill="none"
-        stroke="#00b2a9"
+        stroke={FIESTA_TEAL}
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -161,15 +162,15 @@ function Sparkline({
               cx={x(i)}
               cy={y(game.spursPoints)}
               r={selected ? '6.5' : '5'}
-              fill="#00b2a9"
+              fill={FIESTA_TEAL}
               opacity="0.16"
             />
             <circle
               cx={x(i)}
               cy={y(game.spursPoints)}
               r={selected ? '3.8' : '2.8'}
-              fill={selected ? '#ffffff' : '#00b2a9'}
-              stroke="#00b2a9"
+              fill={selected ? '#ffffff' : FIESTA_TEAL}
+              stroke={FIESTA_TEAL}
               strokeWidth="1.5"
             />
           </g>

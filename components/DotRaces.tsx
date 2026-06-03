@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
+import { FIESTA_TEAL, FIESTA_PINK, FIESTA_ORANGE } from '@/lib/constants';
 
 type Dot = 'red' | 'green' | 'blue';
 type Phase = 'pick' | 'locked' | 'countdown' | 'racing' | 'result';
@@ -150,7 +151,7 @@ export default function DotRaces() {
         setPhase('result');
 
         if (raceWinner === pickRef.current) {
-          const colors = ['#ef4444', '#22c55e', '#3b82f6', '#00b2a9', '#e8338a', '#f58220'];
+          const colors = ['#ef4444', '#22c55e', '#3b82f6', FIESTA_TEAL, FIESTA_PINK, FIESTA_ORANGE];
           confetti({
             particleCount: 90,
             spread: 75,

@@ -1,5 +1,10 @@
 export const SPURS_ALIAS = 'SAS';
 
+export const FIESTA_TEAL = '#00b2a9';
+export const FIESTA_PINK = '#e8338a';
+export const FIESTA_ORANGE = '#f58220';
+export const SPURS_SILVER = '#c4ced4';
+
 // Date keys and tipoff times are shown in the Spurs/San Antonio context.
 export const CENTRAL_TIMEZONE = 'America/Chicago';
 export const CENTRAL_TIMEZONE_LABEL = 'CT';

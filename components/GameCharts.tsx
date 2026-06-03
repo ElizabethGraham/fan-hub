@@ -9,6 +9,7 @@ import type {
   NBATeamChartStats,
 } from '@/lib/types';
 import { isPregameGame } from '@/lib/gameDisplay';
+import { FIESTA_TEAL, FIESTA_PINK } from '@/lib/constants';
 
 type Props = {
   game: GameDisplay;
@@ -33,8 +34,8 @@ function teamTotalsFromStats(stats: NBAPlayerStats[]): NBATeamChartStats | null 
   };
 }
 
-const HOME_COLOR = '#00b2a9';
-const AWAY_COLOR = '#e8338a';
+const HOME_COLOR = FIESTA_TEAL;
+const AWAY_COLOR = FIESTA_PINK;
 
 type MetricKey = keyof NBATeamChartStats;
 

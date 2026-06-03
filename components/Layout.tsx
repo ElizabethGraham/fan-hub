@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { teamLogoUrl } from '@/lib/nba';
+import { FIESTA_TEAL, FIESTA_PINK, FIESTA_ORANGE } from '@/lib/constants';
 
 const FIESTA_SASH = `linear-gradient(
   135deg,
@@ -35,7 +36,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed left-0 top-0 hidden h-screen w-1 sm:block"
         style={{
           zIndex: -1,
-          background: 'linear-gradient(180deg, #00b2a9 0%, #e8338a 48%, #f58220 100%)',
+          background: `linear-gradient(180deg, ${FIESTA_TEAL} 0%, ${FIESTA_PINK} 48%, ${FIESTA_ORANGE} 100%)`,
         }}
       />
 
