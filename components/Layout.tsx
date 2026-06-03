@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ReactNode } from "react";
 import { teamLogoUrl } from "@/lib/nba";
 
@@ -48,7 +49,11 @@ export default function Layout({ children }: { children: ReactNode }) {
         </a>
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:max-w-5xl lg:px-8 2xl:max-w-6xl">
           <header className="mb-10">
-            <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              aria-label="Go to Spurs Fan Hub home"
+              className="inline-flex items-center gap-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-fiesta-teal/70 focus:ring-offset-2 focus:ring-offset-background"
+            >
               <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <Image
                   src={teamLogoUrl("SAS")}
@@ -66,7 +71,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   Game Day Center
                 </p>
               </div>
-            </div>
+            </Link>
             <div className="mt-4 h-px bg-linear-to-r from-fiesta-teal/50 via-zinc-800 to-transparent" />
           </header>
 
