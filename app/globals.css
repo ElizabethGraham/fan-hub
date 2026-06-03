@@ -14,6 +14,7 @@
   /* Spurs fiesta accent colors */
   --color-fiesta-teal: #00b2a9;
   --color-fiesta-pink: #e8338a;
+  --color-fiesta-orange: #f58220;
   --color-spurs-silver: #c4ced4;
 }
 
@@ -21,6 +22,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+}
+
+@keyframes pop {
+  0% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 @layer utilities {
