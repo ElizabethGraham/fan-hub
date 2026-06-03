@@ -37,7 +37,10 @@ function teamPerspective(game: GameDisplay) {
   return { isSpursHome, spurs, opponent };
 }
 
-function bestStatEdge(game: GameDisplay, chartData?: NBAGameChartData | null): StatEdge | null {
+function bestStatEdge(
+  game: GameDisplay,
+  chartData?: NBAGameChartData | null,
+): StatEdge | null {
   if (!chartData) return null;
 
   const { isSpursHome, opponent } = teamPerspective(game);
@@ -66,8 +69,20 @@ function bestStatEdge(game: GameDisplay, chartData?: NBAGameChartData | null): S
 
   const turnoverDiff = opponentStats.tov - spursStats.tov;
   const edges: StatEdge[] = [
-    spursHigherIsBetter("Field goal rate", spursStats.fgPct, opponentStats.fgPct, "%", 1.2),
-    spursHigherIsBetter("Three-point rate", spursStats.fg3Pct, opponentStats.fg3Pct, "%", 1.1),
+    spursHigherIsBetter(
+      "Field goal rate",
+      spursStats.fgPct,
+      opponentStats.fgPct,
+      "%",
+      1.2,
+    ),
+    spursHigherIsBetter(
+      "Three-point rate",
+      spursStats.fg3Pct,
+      opponentStats.fg3Pct,
+      "%",
+      1.1,
+    ),
     spursHigherIsBetter("Rebounding", spursStats.reb, opponentStats.reb),
     spursHigherIsBetter("Assists", spursStats.ast, opponentStats.ast),
     spursHigherIsBetter("Steals", spursStats.stl, opponentStats.stl, "", 1.8),
@@ -100,14 +115,16 @@ function gameHeadline(game: GameDisplay): string {
   const opponentScore = isSpursHome ? game.awayTeamScore : game.homeTeamScore;
 
   if (game.status === "final") {
-    if (spursScore === opponentScore) return `${spursName} finish level with ${opponentName}`;
+    if (spursScore === opponentScore)
+      return `${spursName} finish level with ${opponentName}`;
     return spursScore > opponentScore
       ? `${spursName} win by ${spursScore - opponentScore}`
       : `${spursName} fall by ${opponentScore - spursScore}`;
   }
 
   if (game.status === "live") {
-    if (spursScore === opponentScore) return `${spursName} are tied with ${opponentName}`;
+    if (spursScore === opponentScore)
+      return `${spursName} are tied with ${opponentName}`;
     return spursScore > opponentScore
       ? `${spursName} lead by ${spursScore - opponentScore}`
       : `${spursName} within ${opponentScore - spursScore}`;
@@ -158,13 +175,15 @@ export default function KeyMatchup({ game, chartData = null }: Props) {
   const fixture = `${fullName(game.awayTeam)} at ${fullName(game.homeTeam)}`;
   const { isSpursHome, opponent } = teamPerspective(game);
   const label = gameDisplayLabel(game);
-  const gameLabel = label ? `${label} · ${formatDate(game.date)}` : formatDate(game.date);
+  const gameLabel = label
+    ? `${label} · ${formatDate(game.date)}`
+    : formatDate(game.date);
   const statusLabel =
     game.status === "live"
       ? "Live"
       : game.status === "final"
         ? "Final"
-        : game.title ?? "Game Brief";
+        : (game.title ?? "Game Brief");
 
   return (
     <section className="surface-panel p-4 sm:p-6">
@@ -219,7 +238,9 @@ export default function KeyMatchup({ game, chartData = null }: Props) {
           <div className="text-[9px] font-black text-ui-muted uppercase tracking-widest">
             {edge ? edge.label : "Focus"}
           </div>
-          <div className="mt-1 text-sm font-bold text-fiesta-teal leading-snug">
+          <div
+            className={`mt-1 text-sm font-bold leading-snug ${"text-fiesta-teal"}`}
+          >
             {edge ? edge.value : isPregame ? "First run" : "Next swing"}
           </div>
         </div>
