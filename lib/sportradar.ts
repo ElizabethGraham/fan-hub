@@ -1,3 +1,4 @@
+import 'server-only';
 import {
   SR_DEPTH_CHART_REVALIDATE_SECONDS,
   SR_GAME_SUMMARY_REVALIDATE_SECONDS,
