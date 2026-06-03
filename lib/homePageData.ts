@@ -84,6 +84,9 @@ function gameLeaders(stats: NBAPlayerStats[]): PlayoffGameLeader[] {
     .map((player) => ({
       key: player.player.srId ?? String(player.player.id),
       name: playerName(player),
+      firstName: player.player.first_name,
+      lastName: player.player.last_name,
+      reference: player.player.reference,
       pts: player.pts,
       reb: player.reb,
       ast: player.ast,
@@ -95,6 +98,9 @@ function gameLeaders(stats: NBAPlayerStats[]): PlayoffGameLeader[] {
 type PlayerTotals = {
   key: string;
   name: string;
+  firstName: string;
+  lastName: string;
+  reference?: string;
   games: number;
   pts: number;
   reb: number;
@@ -176,6 +182,9 @@ async function getPlayoffSnapshot(games: GameDisplay[]): Promise<PlayoffSnapshot
       const current = playerTotals.get(key) ?? {
         key,
         name: playerName(stats),
+        firstName: stats.player.first_name,
+        lastName: stats.player.last_name,
+        reference: stats.player.reference,
         games: 0,
         pts: 0,
         reb: 0,
@@ -193,6 +202,9 @@ async function getPlayoffSnapshot(games: GameDisplay[]): Promise<PlayoffSnapshot
     .map((player) => ({
       key: player.key,
       name: player.name,
+      firstName: player.firstName,
+      lastName: player.lastName,
+      reference: player.reference,
       ppg: player.pts / player.games,
       rpg: player.reb / player.games,
       apg: player.ast / player.games,

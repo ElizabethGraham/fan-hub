@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PlayerAvatar from '@/components/PlayerAvatar';
 
 export type PlayoffTrendGame = {
   id: string;
@@ -19,6 +20,9 @@ export type PlayoffTrendGame = {
 export type PlayoffLeader = {
   key: string;
   name: string;
+  firstName: string;
+  lastName: string;
+  reference?: string;
   ppg: number;
   rpg: number;
   apg: number;
@@ -27,6 +31,9 @@ export type PlayoffLeader = {
 export type PlayoffGameLeader = {
   key: string;
   name: string;
+  firstName: string;
+  lastName: string;
+  reference?: string;
   pts: number;
   reb: number;
   ast: number;
@@ -285,12 +292,17 @@ export default function PlayoffSnapshot({ data }: { data: PlayoffSnapshotData })
             {selectedGame ? 'Game Scorers' : 'Leading Scorers'}
           </div>
           <div className="grid gap-2">
-            {displayedLeaders.map((leader, index) => (
+            {displayedLeaders.map((leader) => (
               <div
                 key={leader.key}
                 className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2"
               >
-                <span className="text-xs font-black text-white">{index + 1}</span>
+                <PlayerAvatar
+                  firstName={leader.firstName}
+                  lastName={leader.lastName}
+                  reference={leader.reference}
+                  size="sm"
+                />
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold text-white">{leader.name}</div>
                   <div className="text-xs font-medium text-ui-muted">
