@@ -16,3 +16,6 @@ vi.mock('next/link', () => ({
 
 // canvas-confetti is a no-op in jsdom (no canvas support)
 vi.mock('canvas-confetti', () => ({ default: vi.fn() }));
+
+// server-only throws in non-server environments; stub it out for tests
+vi.mock('server-only', () => ({}));
