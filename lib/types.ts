@@ -21,7 +21,7 @@ export type NBAPlayer = {
 // Simplified for the scope of this assessment.
 // The upstream API exposes additional statuses, but many can be
 // mapped to these four states for the UI requirements here.
-export type NBAGameStatus = "scheduled" | "live" | "final" | "if-necessary";
+export type NBAGameStatus = 'scheduled' | 'live' | 'final' | 'if-necessary';
 
 export type NBAPlayerStats = {
   player: {

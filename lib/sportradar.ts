@@ -4,17 +4,17 @@ import {
   SR_SEASON_SCHEDULE_REVALIDATE_SECONDS,
   SR_TEAM_PROFILE_REVALIDATE_SECONDS,
   SR_TEAM_SEASON_STATS_REVALIDATE_SECONDS,
-} from "./constants";
-import { logServerError } from "./serverLogger";
+} from './constants';
+import { logServerError } from './serverLogger';
 
-const SR_API = "https://api.sportradar.com/nba";
-const ACCESS = process.env.SPORTRADAR_ACCESS_LEVEL ?? "trial";
+const SR_API = 'https://api.sportradar.com/nba';
+const ACCESS = process.env.SPORTRADAR_ACCESS_LEVEL ?? 'trial';
 const BASE = `${SR_API}/${ACCESS}/v8/en`;
 
 function apiKey() {
   const key = process.env.SPORTRADAR_API_KEY;
-  if (!key || key === "your_sportradar_api_key_here") {
-    throw new Error("SPORTRADAR_API_KEY not configured");
+  if (!key || key === 'your_sportradar_api_key_here') {
+    throw new Error('SPORTRADAR_API_KEY not configured');
   }
   return key;
 }
@@ -23,7 +23,7 @@ async function srFetch(path: string, revalidate: number) {
   const url = `${BASE}${path}`;
   try {
     const res = await fetch(url, {
-      headers: { "x-api-key": apiKey() },
+      headers: { 'x-api-key': apiKey() },
       next: { revalidate },
     });
     if (!res.ok) {
@@ -31,7 +31,7 @@ async function srFetch(path: string, revalidate: number) {
     }
     return res.json();
   } catch (error) {
-    logServerError("sportradar.request_failed", error, {
+    logServerError('sportradar.request_failed', error, {
       access: ACCESS,
       path,
       revalidate,
@@ -43,28 +43,19 @@ async function srFetch(path: string, revalidate: number) {
 
 // Full roster + player profiles for a team. Cache for 24 h.
 export async function fetchSRTeamProfile(srTeamId: string): Promise<SRTeamProfile> {
-  return srFetch(
-    `/teams/${srTeamId}/profile.json`,
-    SR_TEAM_PROFILE_REVALIDATE_SECONDS,
-  );
+  return srFetch(`/teams/${srTeamId}/profile.json`, SR_TEAM_PROFILE_REVALIDATE_SECONDS);
 }
 
 // Box scores + per-player stats. For this assessment, cache for 2 hours to
 // reduce API pressure; a production live game hub would lower this sharply
 // during active games.
 export async function fetchSRGameSummary(srGameId: string): Promise<SRGameSummary> {
-  return srFetch(
-    `/games/${srGameId}/summary.json`,
-    SR_GAME_SUMMARY_REVALIDATE_SECONDS,
-  );
+  return srFetch(`/games/${srGameId}/summary.json`, SR_GAME_SUMMARY_REVALIDATE_SECONDS);
 }
 
 // Depth chart for a team. Cache for 12 h (changes only after trades/injuries).
 export async function fetchSRDepthChart(srTeamId: string): Promise<SRDepthChart> {
-  return srFetch(
-    `/teams/${srTeamId}/depth_chart.json`,
-    SR_DEPTH_CHART_REVALIDATE_SECONDS,
-  );
+  return srFetch(`/teams/${srTeamId}/depth_chart.json`, SR_DEPTH_CHART_REVALIDATE_SECONDS);
 }
 
 // Full NBA season schedule (~1 200 games). Treated as immutable for the season;
@@ -72,7 +63,7 @@ export async function fetchSRDepthChart(srTeamId: string): Promise<SRDepthChart>
 // caches the mapped result indefinitely (revalidate: false) in Vercel Data Cache.
 export async function fetchSRSeasonSchedule(
   seasonYear: number,
-  seasonType: "REG" | "PST" = "REG"
+  seasonType: 'REG' | 'PST' = 'REG',
 ): Promise<SRSeasonSchedule> {
   return srFetch(
     `/games/${seasonYear}/${seasonType}/schedule.json`,
@@ -83,7 +74,7 @@ export async function fetchSRSeasonSchedule(
 // Per-player season averages for a team. REG = regular season. Cache for 6 h.
 export async function fetchSRTeamSeasonStats(
   srTeamId: string,
-  seasonYear: number
+  seasonYear: number,
 ): Promise<SRTeamSeasonStats> {
   return srFetch(
     `/seasons/${seasonYear}/REG/teams/${srTeamId}/statistics.json`,
@@ -100,7 +91,6 @@ export type SRTeamRef = {
   name: string;
 };
 
-
 export type SRPlayerRef = {
   id: string;
   reference?: string;
@@ -110,8 +100,8 @@ export type SRPlayerRef = {
   position?: string;
   primary_position?: string;
   jersey_number?: string;
-  height?: number;   // inches
-  weight?: number;   // lbs
+  height?: number; // inches
+  weight?: number; // lbs
 };
 
 export type SRTeamProfile = {
@@ -142,7 +132,6 @@ export type SRSeasonSchedule = {
   season?: { games?: SRGameRef[] };
   games?: SRGameRef[];
 };
-
 
 export type SRPlayerStats = {
   id: string;

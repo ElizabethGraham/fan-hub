@@ -5,7 +5,7 @@ import type {
   NBAGameChartData,
   GameDisplay,
   TeamDisplay,
-} from "./types";
+} from './types';
 import type {
   SRPlayerRef,
   SRTeamRef,
@@ -14,24 +14,24 @@ import type {
   SRTeamSeasonStats,
   SRSeasonSchedule,
   SRGameRef,
-} from "./sportradar";
+} from './sportradar';
 import {
   CENTRAL_TIMEZONE,
   CENTRAL_TIMEZONE_LABEL,
   DATE_KEY_LOCALE,
   SPURS_ALIAS,
-} from "./constants";
-import { spursPlayoffStageForTeams } from "./playoffs";
+} from './constants';
+import { spursPlayoffStageForTeams } from './playoffs';
 
 // Convert a SR GUID to a stable numeric ID (safe up to ~4 billion).
 // Used for NBAPlayer.id — players have no other stable numeric key.
 function srIdToNum(srId: string): number {
-  return parseInt(srId.replace(/-/g, "").substring(0, 8), 16);
+  return parseInt(srId.replace(/-/g, '').substring(0, 8), 16);
 }
 
 // SR gives height in total inches; display uses "ft-in" strings.
 function inchesToStr(inches?: number): string {
-  if (!inches) return "";
+  if (!inches) return '';
   return `${Math.floor(inches / 12)}-${inches % 12}`;
 }
 
@@ -41,17 +41,16 @@ export function srPlayerToNBAPlayer(player: SRPlayerRef): NBAPlayer {
     id: srIdToNum(player.id),
     srId: player.id,
     reference: player.reference,
-    first_name: player.first_name ?? player.full_name?.split(" ")[0] ?? "",
-    last_name:
-      player.last_name ?? player.full_name?.split(" ").slice(1).join(" ") ?? "",
-    position: player.primary_position ?? player.position ?? "",
+    first_name: player.first_name ?? player.full_name?.split(' ')[0] ?? '',
+    last_name: player.last_name ?? player.full_name?.split(' ').slice(1).join(' ') ?? '',
+    position: player.primary_position ?? player.position ?? '',
     jersey_number: player.jersey_number ?? null,
     height: inchesToStr(player.height),
-    weight: player.weight ? String(player.weight) : "",
+    weight: player.weight ? String(player.weight) : '',
   };
 }
 
-function mapSideStats(side: SRGameSummary["home"]): NBAPlayerStats[] {
+function mapSideStats(side: SRGameSummary['home']): NBAPlayerStats[] {
   if (!side) return [];
   const results: NBAPlayerStats[] = [];
 
@@ -72,15 +71,14 @@ function mapSideStats(side: SRGameSummary["home"]): NBAPlayerStats[] {
         id: srIdToNum(p.id),
         srId: p.id,
         reference: p.reference,
-        first_name: p.first_name ?? p.full_name?.split(" ")[0] ?? "",
-        last_name:
-          p.last_name ?? p.full_name?.split(" ").slice(1).join(" ") ?? "",
-        position: p.primary_position ?? p.position ?? "",
+        first_name: p.first_name ?? p.full_name?.split(' ')[0] ?? '',
+        last_name: p.last_name ?? p.full_name?.split(' ').slice(1).join(' ') ?? '',
+        position: p.primary_position ?? p.position ?? '',
         jersey_number: p.jersey_number ?? null,
         starter: p.starter,
         onCourt: p.on_court,
       },
-      min: s.minutes ?? "0",
+      min: s.minutes ?? '0',
       fgm,
       fga,
       fg_pct: fga > 0 ? fgm / fga : 0,
@@ -107,23 +105,21 @@ function mapSideStats(side: SRGameSummary["home"]): NBAPlayerStats[] {
 }
 
 // Position ordering for depth chart ranking (lower index = higher priority).
-const POSITION_ORDER = ["PG", "SG", "SF", "PF", "C"];
+const POSITION_ORDER = ['PG', 'SG', 'SF', 'PF', 'C'];
 
 function buildDepthMap(chart: SRDepthChart): Map<string, number> {
   const map = new Map<string, number>();
   const positions = chart.team?.depth_chart ?? [];
 
   const sorted = [...positions].sort((a, b) => {
-    const ai = POSITION_ORDER.indexOf(a.position?.toUpperCase() ?? "");
-    const bi = POSITION_ORDER.indexOf(b.position?.toUpperCase() ?? "");
+    const ai = POSITION_ORDER.indexOf(a.position?.toUpperCase() ?? '');
+    const bi = POSITION_ORDER.indexOf(b.position?.toUpperCase() ?? '');
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
   });
 
   let rank = 1;
   for (const pos of sorted) {
-    const players = [...(pos.players ?? [])].sort(
-      (a, b) => (a.order ?? 99) - (b.order ?? 99),
-    );
+    const players = [...(pos.players ?? [])].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
     for (const entry of players) {
       const id = entry.player?.id;
       if (id && !map.has(id)) map.set(id, rank++);
@@ -132,10 +128,7 @@ function buildDepthMap(chart: SRDepthChart): Map<string, number> {
   return map;
 }
 
-export function applyDepthChart(
-  players: NBAPlayer[],
-  chart: SRDepthChart,
-): NBAPlayer[] {
+export function applyDepthChart(players: NBAPlayer[], chart: SRDepthChart): NBAPlayer[] {
   const depthMap = buildDepthMap(chart);
   return players.map((p) => ({
     ...p,
@@ -187,10 +180,7 @@ function buildSeasonAvgsMap(stats: SRTeamSeasonStats): Map<string, SeasonAvgs> {
   return map;
 }
 
-export function applySeasonStats(
-  players: NBAPlayer[],
-  stats: SRTeamSeasonStats,
-): NBAPlayer[] {
+export function applySeasonStats(players: NBAPlayer[], stats: SRTeamSeasonStats): NBAPlayer[] {
   const avgsMap = buildSeasonAvgsMap(stats);
   return players.map((p) => {
     const avgs = p.srId ? avgsMap.get(p.srId) : undefined;
@@ -209,10 +199,8 @@ export function applySeasonStats(
 
 export function teamSeasonChartStatsFromPlayers(
   players: NBAPlayer[],
-): NBAGameChartData["homeStats"] | null {
-  const withScoring = players.filter(
-    (player) => player.seasonPpg !== undefined,
-  );
+): NBAGameChartData['homeStats'] | null {
+  const withScoring = players.filter((player) => player.seasonPpg !== undefined);
   if (withScoring.length === 0) return null;
 
   const topRotation = [...withScoring]
@@ -223,9 +211,7 @@ export function teamSeasonChartStatsFromPlayers(
       return (b.seasonPpg ?? 0) - (a.seasonPpg ?? 0);
     })
     .slice(0, 10);
-  const weightedAverage = (
-    selector: (player: NBAPlayer) => number | undefined,
-  ): number => {
+  const weightedAverage = (selector: (player: NBAPlayer) => number | undefined): number => {
     const weighted = topRotation
       .map((player) => ({
         value: selector(player),
@@ -234,10 +220,7 @@ export function teamSeasonChartStatsFromPlayers(
       .filter((row) => row.value !== undefined && row.value > 0);
     const totalWeight = weighted.reduce((sum, row) => sum + row.weight, 0);
     if (totalWeight === 0) return 0;
-    return (
-      weighted.reduce((sum, row) => sum + row.value! * row.weight, 0) /
-      totalWeight
-    );
+    return weighted.reduce((sum, row) => sum + row.value! * row.weight, 0) / totalWeight;
   };
 
   return {
@@ -252,7 +235,7 @@ export function teamSeasonChartStatsFromPlayers(
 
 export function teamSeasonChartStats(
   stats: SRTeamSeasonStats,
-): NBAGameChartData["homeStats"] | null {
+): NBAGameChartData['homeStats'] | null {
   const total = stats.own_record?.total;
   const average = stats.own_record?.average;
   if (!total && !average) return null;
@@ -279,24 +262,16 @@ export function srSummaryToSplitStats(summary: SRGameSummary) {
   };
 }
 
-function mapTeamChartStats(
-  side: SRGameSummary["home"],
-): NBAGameChartData["homeStats"] | null {
+function mapTeamChartStats(side: SRGameSummary['home']): NBAGameChartData['homeStats'] | null {
   const s = side?.statistics;
   if (!s) return null;
 
   const reb =
-    s.total_rebounds ??
-    s.rebounds ??
-    (s.offensive_rebounds ?? 0) + (s.defensive_rebounds ?? 0);
+    s.total_rebounds ?? s.rebounds ?? (s.offensive_rebounds ?? 0) + (s.defensive_rebounds ?? 0);
 
   return {
-    fgPct:
-      s.field_goals_pct ??
-      pctFromMadeAtt(s.field_goals_made, s.field_goals_att),
-    fg3Pct:
-      s.three_points_pct ??
-      pctFromMadeAtt(s.three_points_made, s.three_points_att),
+    fgPct: s.field_goals_pct ?? pctFromMadeAtt(s.field_goals_made, s.field_goals_att),
+    fg3Pct: s.three_points_pct ?? pctFromMadeAtt(s.three_points_made, s.three_points_att),
     reb,
     ast: s.assists ?? 0,
     stl: s.steals ?? 0,
@@ -304,13 +279,9 @@ function mapTeamChartStats(
   };
 }
 
-type SRPeriodStats = NonNullable<
-  NonNullable<SRGameSummary["home"]>["scoring"]
->[number];
+type SRPeriodStats = NonNullable<NonNullable<SRGameSummary['home']>['scoring']>[number];
 
-function mapPeriodChartStats(
-  period: SRPeriodStats,
-): NBAGameChartData["homeStats"] {
+function mapPeriodChartStats(period: SRPeriodStats): NBAGameChartData['homeStats'] {
   const reb =
     period.total_rebounds ??
     period.rebounds ??
@@ -318,19 +289,13 @@ function mapPeriodChartStats(
 
   return {
     fgPct:
-      period.field_goals_pct ??
-      pctFromMadeAtt(period.field_goals_made, period.field_goals_att),
+      period.field_goals_pct ?? pctFromMadeAtt(period.field_goals_made, period.field_goals_att),
     fg3Pct:
-      period.three_points_pct ??
-      pctFromMadeAtt(period.three_points_made, period.three_points_att),
+      period.three_points_pct ?? pctFromMadeAtt(period.three_points_made, period.three_points_att),
     reb,
     ast: period.assists ?? 0,
     stl: period.steals ?? 0,
-    tov:
-      period.total_turnovers ??
-      period.turnovers ??
-      period.player_turnovers ??
-      0,
+    tov: period.total_turnovers ?? period.turnovers ?? period.player_turnovers ?? 0,
   };
 }
 
@@ -350,14 +315,14 @@ function hasPeriodChartStats(period: SRPeriodStats): boolean {
 }
 
 function periodLabel(type?: string, number?: number): string {
-  if (!number) return "P";
-  if (type?.toLowerCase().includes("overtime") || number > 4) {
-    return `OT${number > 5 ? number - 4 : ""}`;
+  if (!number) return 'P';
+  if (type?.toLowerCase().includes('overtime') || number > 4) {
+    return `OT${number > 5 ? number - 4 : ''}`;
   }
   return `Q${number}`;
 }
 
-function mapQuarterScores(summary: SRGameSummary): NBAGameChartData["periods"] {
+function mapQuarterScores(summary: SRGameSummary): NBAGameChartData['periods'] {
   const homeScoring = summary.home?.scoring ?? [];
   const awayScoring = summary.away?.scoring ?? [];
   const sequences = new Set<number>();
@@ -375,27 +340,16 @@ function mapQuarterScores(summary: SRGameSummary): NBAGameChartData["periods"] {
       const home = homeScoring.find((p) => p.sequence === sequence);
       const away = awayScoring.find((p) => p.sequence === sequence);
       return {
-        label: periodLabel(
-          home?.type ?? away?.type,
-          home?.number ?? away?.number,
-        ),
+        label: periodLabel(home?.type ?? away?.type, home?.number ?? away?.number),
         home: home?.points ?? 0,
         away: away?.points ?? 0,
-        homeStats:
-          home && hasPeriodChartStats(home)
-            ? mapPeriodChartStats(home)
-            : undefined,
-        awayStats:
-          away && hasPeriodChartStats(away)
-            ? mapPeriodChartStats(away)
-            : undefined,
+        homeStats: home && hasPeriodChartStats(home) ? mapPeriodChartStats(home) : undefined,
+        awayStats: away && hasPeriodChartStats(away) ? mapPeriodChartStats(away) : undefined,
       };
     });
 }
 
-export function srSummaryToChartData(
-  summary: SRGameSummary,
-): NBAGameChartData | null {
+export function srSummaryToChartData(summary: SRGameSummary): NBAGameChartData | null {
   const homeStats = mapTeamChartStats(summary.home);
   const awayStats = mapTeamChartStats(summary.away);
 
@@ -411,19 +365,18 @@ export function srSummaryToChartData(
 // ─── Season schedule → GameDisplay[] ──────────────────────────────────────────
 
 function normalizeSRGameStatus(status?: string): NBAGameStatus {
-  if (status === "closed") return "final";
-  if (status === "inprogress") return "live";
-  if (status === "if-necessary" || status === "unnecessary")
-    return "if-necessary";
-  return "scheduled";
+  if (status === 'closed') return 'final';
+  if (status === 'inprogress') return 'live';
+  if (status === 'if-necessary' || status === 'unnecessary') return 'if-necessary';
+  return 'scheduled';
 }
 
 function srGameTipOff(game: SRGameRef): string | null {
-  if (!game.scheduled || game.status !== "scheduled") return null;
+  if (!game.scheduled || game.status !== 'scheduled') return null;
   try {
-    const fmt = new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true,
       timeZone: CENTRAL_TIMEZONE,
     }).format(new Date(game.scheduled));
@@ -435,7 +388,7 @@ function srGameTipOff(game: SRGameRef): string | null {
 
 // DATE_KEY_LOCALE produces YYYY-MM-DD natively, converted to Central Time.
 function srGameDate(game: SRGameRef): string {
-  if (!game.scheduled) return "";
+  if (!game.scheduled) return '';
   return new Intl.DateTimeFormat(DATE_KEY_LOCALE, {
     timeZone: CENTRAL_TIMEZONE,
   }).format(new Date(game.scheduled));
@@ -445,20 +398,15 @@ function srGameDate(game: SRGameRef): string {
 function srTeamToTeamDisplay(team: SRTeamRef): TeamDisplay {
   return {
     id: team.id,
-    alias: team.alias?.toUpperCase() ?? "",
-    name: team.name ?? "",
+    alias: team.alias?.toUpperCase() ?? '',
+    name: team.name ?? '',
     market: team.market,
   };
 }
 
-export function srScheduleToGameDisplays(
-  schedule: SRSeasonSchedule,
-): GameDisplay[] {
+export function srScheduleToGameDisplays(schedule: SRSeasonSchedule): GameDisplay[] {
   const games: SRGameRef[] =
-    schedule.league?.season?.games ??
-    schedule.season?.games ??
-    schedule.games ??
-    [];
+    schedule.league?.season?.games ?? schedule.season?.games ?? schedule.games ?? [];
 
   return games
     .map((g): GameDisplay => {
@@ -466,20 +414,16 @@ export function srScheduleToGameDisplays(
       const title = g.title;
       const homeTeam = srTeamToTeamDisplay(g.home);
       const awayTeam = srTeamToTeamDisplay(g.away);
-      const homeFull = homeTeam.market
-        ? `${homeTeam.market} ${homeTeam.name}`
-        : homeTeam.name;
-      const awayFull = awayTeam.market
-        ? `${awayTeam.market} ${awayTeam.name}`
-        : awayTeam.name;
+      const homeFull = homeTeam.market ? `${homeTeam.market} ${homeTeam.name}` : homeTeam.name;
+      const awayFull = awayTeam.market ? `${awayTeam.market} ${awayTeam.name}` : awayTeam.name;
       const isSpursHome = homeTeam.alias === SPURS_ALIAS;
       const opponentFull = isSpursHome ? awayFull : homeFull;
       const playoffStage = spursPlayoffStageForTeams(homeTeam, awayTeam);
 
       const headline =
-        status === "final"
+        status === 'final'
           ? `${homeFull} vs ${awayFull} - Final`
-          : status === "live"
+          : status === 'live'
             ? `${homeFull} vs ${awayFull} - Live`
             : `${homeFull} vs ${awayFull} - Upcoming`;
 

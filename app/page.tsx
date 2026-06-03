@@ -1,27 +1,27 @@
-import type { Metadata } from "next";
-import { connection } from "next/server";
-import FeaturedGame from "@/components/FeaturedGame";
-import GameSection from "@/components/GameSection";
-import Layout from "@/components/Layout";
-import PlayoffSnapshot from "@/components/PlayoffSnapshot";
-import { getHomePageData } from "@/lib/homePageData";
-import { logServerError } from "@/lib/serverLogger";
+import type { Metadata } from 'next';
+import { connection } from 'next/server';
+import FeaturedGame from '@/components/FeaturedGame';
+import GameSection from '@/components/GameSection';
+import Layout from '@/components/Layout';
+import PlayoffSnapshot from '@/components/PlayoffSnapshot';
+import { getHomePageData } from '@/lib/homePageData';
+import { logServerError } from '@/lib/serverLogger';
 
 export const metadata: Metadata = {
-  title: "Spurs Fan Hub - San Antonio Spurs Games & Analysis",
+  title: 'Spurs Fan Hub - San Antonio Spurs Games & Analysis',
   description:
-    "Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.",
+    'Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.',
   openGraph: {
-    title: "Spurs Fan Hub - San Antonio Spurs Games & Analysis",
+    title: 'Spurs Fan Hub - San Antonio Spurs Games & Analysis',
     description:
-      "Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.",
-    type: "website",
+      'Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.',
+    type: 'website',
   },
   twitter: {
-    card: "summary",
-    title: "Spurs Fan Hub - San Antonio Spurs Games & Analysis",
+    card: 'summary',
+    title: 'Spurs Fan Hub - San Antonio Spurs Games & Analysis',
     description:
-      "Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.",
+      'Track the San Antonio Spurs season with live game updates, matchup analysis, player rosters, and stats.',
   },
 };
 
@@ -34,7 +34,7 @@ export default async function Home() {
   try {
     data = await getHomePageData();
   } catch (err) {
-    logServerError("home.page_data_failed", err);
+    logServerError('home.page_data_failed', err);
     error = true;
   }
 
@@ -43,14 +43,11 @@ export default async function Home() {
       {error || !data ? (
         <div className="surface-panel p-6 text-center">
           <div className="text-2xl mb-2">⏱</div>
-          <div className="font-black text-white text-sm mb-1">
-            Schedule unavailable
-          </div>
+          <div className="font-black text-white text-sm mb-1">Schedule unavailable</div>
           <div className="text-xs text-ui-muted">
             Could not reach the Sportradar API.
             <br />
-            Refresh in a moment — once loaded, results are cached for the
-            season.
+            Refresh in a moment — once loaded, results are cached for the season.
           </div>
         </div>
       ) : (
@@ -59,9 +56,7 @@ export default async function Home() {
             <>
               <FeaturedGame game={data.sections.featured} />
 
-              {data.playoffSnapshot && (
-                <PlayoffSnapshot data={data.playoffSnapshot} />
-              )}
+              {data.playoffSnapshot && <PlayoffSnapshot data={data.playoffSnapshot} />}
 
               <GameSection
                 title="Live Updates"

@@ -1,11 +1,11 @@
-import { SPURS_ALIAS } from "./constants";
-import type { GameDisplay, TeamDisplay } from "./types";
+import { SPURS_ALIAS } from './constants';
+import type { GameDisplay, TeamDisplay } from './types';
 
 export const SPURS_PLAYOFF_STAGE_BY_OPPONENT: Record<string, string> = {
-  POR: "Round 1",
-  MIN: "WCSF",
-  OKC: "WCF",
-  NYK: "Finals",
+  POR: 'Round 1',
+  MIN: 'WCSF',
+  OKC: 'WCF',
+  NYK: 'Finals',
 };
 
 export function spursOpponent(game: GameDisplay): TeamDisplay {
@@ -35,5 +35,5 @@ export function spursPlayoffStageForGame(game: GameDisplay): string | undefined 
 
 export function spursSeriesLabel(game: GameDisplay): string {
   const opponent = spursOpponent(game);
-  return `${spursPlayoffStageForGame(game) ?? "Postseason"}: vs ${opponent.alias}`;
+  return `${spursPlayoffStageForGame(game) ?? 'Postseason'}: vs ${opponent.alias}`;
 }

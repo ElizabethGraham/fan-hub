@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
 export type PlayoffTrendGame = {
   id: string;
@@ -9,7 +9,7 @@ export type PlayoffTrendGame = {
   opponentAlias: string;
   spursPoints: number;
   opponentPoints: number;
-  result: "W" | "L";
+  result: 'W' | 'L';
   fgPct: number;
   reb: number;
   ast: number;
@@ -52,15 +52,15 @@ function fmt(value: number, digits = 1): string {
 }
 
 function leaderRebounds(leader: PlayoffLeader | PlayoffGameLeader): number {
-  return "rpg" in leader ? leader.rpg : leader.reb;
+  return 'rpg' in leader ? leader.rpg : leader.reb;
 }
 
 function leaderAssists(leader: PlayoffLeader | PlayoffGameLeader): number {
-  return "apg" in leader ? leader.apg : leader.ast;
+  return 'apg' in leader ? leader.apg : leader.ast;
 }
 
 function leaderPrimary(leader: PlayoffLeader | PlayoffGameLeader): string {
-  return "ppg" in leader ? fmt(leader.ppg) : String(Math.round(leader.pts));
+  return 'ppg' in leader ? fmt(leader.ppg) : String(Math.round(leader.pts));
 }
 
 function Sparkline({
@@ -81,16 +81,12 @@ function Sparkline({
   const min = Math.min(...values) - 4;
   const max = Math.max(...values) + 4;
   const x = (i: number) => pad + (i / (games.length - 1)) * (width - pad * 2);
-  const y = (v: number) =>
-    height - pad - ((v - min) / Math.max(max - min, 1)) * (height - pad * 2);
+  const y = (v: number) => height - pad - ((v - min) / Math.max(max - min, 1)) * (height - pad * 2);
   const points = (selector: (game: PlayoffTrendGame) => number) =>
-    games.map((game, i) => `${x(i)},${y(selector(game))}`).join(" ");
+    games.map((game, i) => `${x(i)},${y(selector(game))}`).join(' ');
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className="h-28 w-full overflow-visible"
-    >
+    <svg viewBox={`0 0 ${width} ${height}`} className="h-28 w-full overflow-visible">
       {games.map((game, i) => {
         if (i === 0 || game.opponentAlias === games[i - 1]?.opponentAlias) {
           return null;
@@ -148,7 +144,7 @@ function Sparkline({
             className="cursor-pointer outline-none"
             onClick={() => onSelect(game.id)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
+              if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 onSelect(game.id);
               }
@@ -157,15 +153,15 @@ function Sparkline({
             <circle
               cx={x(i)}
               cy={y(game.spursPoints)}
-              r={selected ? "6.5" : "5"}
+              r={selected ? '6.5' : '5'}
               fill="#00b2a9"
               opacity="0.16"
             />
             <circle
               cx={x(i)}
               cy={y(game.spursPoints)}
-              r={selected ? "3.8" : "2.8"}
-              fill={selected ? "#ffffff" : "#00b2a9"}
+              r={selected ? '3.8' : '2.8'}
+              fill={selected ? '#ffffff' : '#00b2a9'}
               stroke="#00b2a9"
               strokeWidth="1.5"
             />
@@ -179,17 +175,17 @@ function Sparkline({
 function Metric({
   label,
   value,
-  tone = "default",
+  tone = 'default',
 }: {
   label: string;
   value: string;
-  tone?: "default" | "accent";
+  tone?: 'default' | 'accent';
 }) {
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-3">
       <div
         className={`text-xl font-black tabular-nums ${
-          tone === "accent" ? "text-fiesta-orange" : "text-white"
+          tone === 'accent' ? 'text-fiesta-orange' : 'text-white'
         }`}
       >
         {value}
@@ -201,15 +197,10 @@ function Metric({
   );
 }
 
-export default function PlayoffSnapshot({
-  data,
-}: {
-  data: PlayoffSnapshotData;
-}) {
+export default function PlayoffSnapshot({ data }: { data: PlayoffSnapshotData }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const record = `${data.wins}-${data.losses}`;
-  const selectedGame =
-    data.trend.find((game) => game.id === selectedId) ?? null;
+  const selectedGame = data.trend.find((game) => game.id === selectedId) ?? null;
   const displayedLeaders: (PlayoffLeader | PlayoffGameLeader)[] =
     selectedGame?.leaders ?? data.leaders.slice(0, 3);
 
@@ -225,9 +216,7 @@ export default function PlayoffSnapshot({
           </p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-black text-white tabular-nums">
-            {record}
-          </div>
+          <div className="text-2xl font-black text-white tabular-nums">{record}</div>
           <div className="text-[10px] font-black uppercase tracking-widest text-ui-muted">
             Record
           </div>
@@ -261,9 +250,7 @@ export default function PlayoffSnapshot({
           <Sparkline
             games={data.trend}
             selectedId={selectedGame?.id ?? null}
-            onSelect={(id) =>
-              setSelectedId((current) => (current === id ? null : id))
-            }
+            onSelect={(id) => setSelectedId((current) => (current === id ? null : id))}
           />
           {selectedGame && (
             <div
@@ -274,14 +261,10 @@ export default function PlayoffSnapshot({
                 {selectedGame.seriesLabel}
               </div>
               <div className="mt-1 flex items-center justify-between gap-3">
-                <div className="truncate text-sm font-bold text-white">
-                  {selectedGame.label}
-                </div>
+                <div className="truncate text-sm font-bold text-white">{selectedGame.label}</div>
                 <div
                   className={`shrink-0 text-sm font-black tabular-nums ${
-                    selectedGame.result === "W"
-                      ? "text-fiesta-teal"
-                      : "text-zinc-300"
+                    selectedGame.result === 'W' ? 'text-fiesta-teal' : 'text-zinc-300'
                   }`}
                 >
                   {selectedGame.result} · SAS {selectedGame.spursPoints}-
@@ -299,7 +282,7 @@ export default function PlayoffSnapshot({
 
         <div>
           <div className="mb-2 text-[10px] font-black uppercase tracking-widest text-ui-muted">
-            {selectedGame ? "Game Scorers" : "Leading Scorers"}
+            {selectedGame ? 'Game Scorers' : 'Leading Scorers'}
           </div>
           <div className="grid gap-2">
             {displayedLeaders.map((leader, index) => (
@@ -307,16 +290,11 @@ export default function PlayoffSnapshot({
                 key={leader.key}
                 className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2"
               >
-                <span className="text-xs font-black text-white">
-                  {index + 1}
-                </span>
+                <span className="text-xs font-black text-white">{index + 1}</span>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-bold text-white">
-                    {leader.name}
-                  </div>
+                  <div className="truncate text-sm font-bold text-white">{leader.name}</div>
                   <div className="text-xs font-medium text-ui-muted">
-                    {fmt(leaderRebounds(leader))} reb ·{" "}
-                    {fmt(leaderAssists(leader))} ast
+                    {fmt(leaderRebounds(leader))} reb · {fmt(leaderAssists(leader))} ast
                   </div>
                 </div>
                 <div className="text-right">
@@ -324,7 +302,7 @@ export default function PlayoffSnapshot({
                     {leaderPrimary(leader)}
                   </div>
                   <div className="text-[9px] font-black uppercase tracking-widest text-ui-muted">
-                    {selectedGame ? "PTS" : "PPG"}
+                    {selectedGame ? 'PTS' : 'PPG'}
                   </div>
                 </div>
               </div>
@@ -335,26 +313,16 @@ export default function PlayoffSnapshot({
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <Metric
-          label={selectedGame ? "FG%" : "FG%"}
-          value={
-            selectedGame ? `${fmt(selectedGame.fgPct)}%` : `${fmt(data.fgPct)}%`
-          }
+          label={selectedGame ? 'FG%' : 'FG%'}
+          value={selectedGame ? `${fmt(selectedGame.fgPct)}%` : `${fmt(data.fgPct)}%`}
         />
         <Metric
-          label={selectedGame ? "REB" : "REB"}
-          value={
-            selectedGame
-              ? String(Math.round(selectedGame.reb))
-              : fmt(data.rebounds)
-          }
+          label={selectedGame ? 'REB' : 'REB'}
+          value={selectedGame ? String(Math.round(selectedGame.reb)) : fmt(data.rebounds)}
         />
         <Metric
-          label={selectedGame ? "AST" : "AST"}
-          value={
-            selectedGame
-              ? String(Math.round(selectedGame.ast))
-              : fmt(data.assists)
-          }
+          label={selectedGame ? 'AST' : 'AST'}
+          value={selectedGame ? String(Math.round(selectedGame.ast)) : fmt(data.assists)}
         />
       </div>
     </section>

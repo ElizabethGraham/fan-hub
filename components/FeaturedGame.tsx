@@ -1,6 +1,6 @@
-import GameCard from "@/components/GameCard";
-import { gameSpotlightLabel } from "@/lib/gameDisplay";
-import type { GameDisplay } from "@/lib/types";
+import GameCard from '@/components/GameCard';
+import { gameSpotlightLabel } from '@/lib/gameDisplay';
+import type { GameDisplay } from '@/lib/types';
 
 export default function FeaturedGame({ game }: { game: GameDisplay }) {
   const spotlightLabel = gameSpotlightLabel(game);
@@ -11,7 +11,7 @@ export default function FeaturedGame({ game }: { game: GameDisplay }) {
         <div className="flex items-center justify-between gap-3">
           <h2
             className={`text-xs font-black uppercase tracking-widest ${
-              spotlightLabel === "Next Up" ? "text-white" : "text-fiesta-teal"
+              spotlightLabel === 'Next Up' ? 'text-white' : 'text-fiesta-teal'
             }`}
           >
             {spotlightLabel}

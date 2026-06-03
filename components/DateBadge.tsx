@@ -1,12 +1,10 @@
 function parseParts(dateStr: string) {
   // Parse manually to avoid UTC→local timezone shift that Date("YYYY-MM-DD") causes
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const [y, m, d] = dateStr.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
   return {
-    month: new Intl.DateTimeFormat("en-US", { month: "short" })
-      .format(dt)
-      .toUpperCase(),
-    day: new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(dt),
+    month: new Intl.DateTimeFormat('en-US', { month: 'short' }).format(dt).toUpperCase(),
+    day: new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(dt),
   };
 }
 

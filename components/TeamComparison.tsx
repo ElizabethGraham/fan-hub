@@ -1,9 +1,9 @@
-import Image from "next/image";
-import { isPregameGame } from "@/lib/gameDisplay";
-import { teamLogoUrl } from "@/lib/nba";
-import type { GameDisplay, TeamDisplay } from "@/lib/types";
+import Image from 'next/image';
+import { isPregameGame } from '@/lib/gameDisplay';
+import { teamLogoUrl } from '@/lib/nba';
+import type { GameDisplay, TeamDisplay } from '@/lib/types';
 
-type WLResult = "W" | "L";
+type WLResult = 'W' | 'L';
 
 type Props = {
   game: GameDisplay;
@@ -14,7 +14,7 @@ type Props = {
 function WLDots({ record }: { record: WLResult[] }) {
   if (!record.length) return null;
   const displayRecord = [...record].reverse();
-  const wins = record.filter((r) => r === "W").length;
+  const wins = record.filter((r) => r === 'W').length;
   return (
     <div
       className="flex flex-col items-center gap-1.5 mt-1"
@@ -25,9 +25,9 @@ function WLDots({ record }: { record: WLResult[] }) {
           <span
             key={i}
             className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-black ${
-              r === "W"
-                ? "bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/35"
-                : "bg-red-400/10 text-red-300 ring-1 ring-red-400/25"
+              r === 'W'
+                ? 'bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/35'
+                : 'bg-red-400/10 text-red-300 ring-1 ring-red-400/25'
             }`}
           >
             {r}
@@ -44,7 +44,7 @@ function WLDots({ record }: { record: WLResult[] }) {
 function TeamColumn({
   team,
   score,
-  scoreClassName = "text-foreground",
+  scoreClassName = 'text-foreground',
   wl,
 }: {
   team: TeamDisplay;
@@ -52,7 +52,7 @@ function TeamColumn({
   scoreClassName?: string;
   wl: WLResult[];
 }) {
-  const fullName = [team.market, team.name].filter(Boolean).join(" ");
+  const fullName = [team.market, team.name].filter(Boolean).join(' ');
   return (
     <div className="flex flex-col items-center gap-2 sm:gap-3">
       <Image
@@ -63,17 +63,11 @@ function TeamColumn({
         className="object-contain w-12 h-12 sm:w-16 sm:h-16"
       />
       <div className="text-center">
-        <div className="font-bold text-white text-xs sm:text-sm leading-snug">
-          {fullName}
-        </div>
-        <div className="text-[10px] sm:text-xs text-ui-muted mt-0.5">
-          {team.alias}
-        </div>
+        <div className="font-bold text-white text-xs sm:text-sm leading-snug">{fullName}</div>
+        <div className="text-[10px] sm:text-xs text-ui-muted mt-0.5">{team.alias}</div>
       </div>
       {score !== null && (
-        <div
-          className={`text-2xl sm:text-3xl font-black tabular-nums ${scoreClassName}`}
-        >
+        <div className={`text-2xl sm:text-3xl font-black tabular-nums ${scoreClassName}`}>
           {score}
         </div>
       )}
@@ -85,9 +79,9 @@ function TeamColumn({
 export default function TeamComparison({ game, homeWL, awayWL }: Props) {
   const showScore = !isPregameGame(game.status);
   const homeScoreClassName =
-    game.homeTeamScore > game.awayTeamScore ? "text-white" : "text-ui-muted";
+    game.homeTeamScore > game.awayTeamScore ? 'text-white' : 'text-ui-muted';
   const awayScoreClassName =
-    game.awayTeamScore > game.homeTeamScore ? "text-white" : "text-ui-muted";
+    game.awayTeamScore > game.homeTeamScore ? 'text-white' : 'text-ui-muted';
 
   return (
     <section className="surface-panel p-4 sm:p-6">

@@ -1,9 +1,9 @@
-export const SPURS_ALIAS = "SAS";
+export const SPURS_ALIAS = 'SAS';
 
 // Date keys and tipoff times are shown in the Spurs/San Antonio context.
-export const CENTRAL_TIMEZONE = "America/Chicago";
-export const CENTRAL_TIMEZONE_LABEL = "CT";
-export const DATE_KEY_LOCALE = "en-CA";
+export const CENTRAL_TIMEZONE = 'America/Chicago';
+export const CENTRAL_TIMEZONE_LABEL = 'CT';
+export const DATE_KEY_LOCALE = 'en-CA';
 
 // Sportradar cache windows. These are intentionally conservative for the
 // technical assessment; production live-game views would revalidate faster.

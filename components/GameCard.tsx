@@ -1,11 +1,11 @@
-import Image from "next/image";
-import Link from "next/link";
-import type { GameDisplay } from "@/lib/types";
-import { teamLogoUrl } from "@/lib/nba";
-import DateBadge from "@/components/DateBadge";
-import { isSpursHome as isSpursHomeGame, gameDisplayLabel } from "@/lib/gameDisplay";
-import { spursPlayoffStageForGame } from "@/lib/playoffs";
-import { CENTRAL_TIMEZONE_LABEL } from "@/lib/constants";
+import Image from 'next/image';
+import Link from 'next/link';
+import type { GameDisplay } from '@/lib/types';
+import { teamLogoUrl } from '@/lib/nba';
+import DateBadge from '@/components/DateBadge';
+import { isSpursHome as isSpursHomeGame, gameDisplayLabel } from '@/lib/gameDisplay';
+import { spursPlayoffStageForGame } from '@/lib/playoffs';
+import { CENTRAL_TIMEZONE_LABEL } from '@/lib/constants';
 
 type Props = {
   game: GameDisplay;
@@ -18,38 +18,38 @@ type BadgeConfig = {
   dot?: string;
 };
 
-type StatusBadgeConfig = Partial<Record<GameDisplay["status"], BadgeConfig>> & {
+type StatusBadgeConfig = Partial<Record<GameDisplay['status'], BadgeConfig>> & {
   default: BadgeConfig;
 };
 
 const STATUS_BADGE: StatusBadgeConfig = {
   live: {
-    label: "Live",
+    label: 'Live',
     className:
-      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800/50",
-    dot: "bg-emerald-400 animate-pulse",
+      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800/50',
+    dot: 'bg-emerald-400 animate-pulse',
   },
 
   final: {
-    label: "Final",
+    label: 'Final',
     className:
-      "px-2 py-0.5 rounded-full text-xs font-bold bg-zinc-800 text-ui-muted border border-zinc-700",
+      'px-2 py-0.5 rounded-full text-xs font-bold bg-zinc-800 text-ui-muted border border-zinc-700',
   },
 
-  "if-necessary": {
-    label: "If Necessary",
+  'if-necessary': {
+    label: 'If Necessary',
     className:
-      "px-2 py-0.5 rounded-full text-xs font-bold bg-zinc-800 text-ui-muted border border-zinc-700",
+      'px-2 py-0.5 rounded-full text-xs font-bold bg-zinc-800 text-ui-muted border border-zinc-700',
   },
 
   default: {
-    label: "Upcoming",
+    label: 'Upcoming',
     className:
-      "px-2 py-0.5 rounded-full text-xs font-bold bg-fiesta-teal/10 text-fiesta-teal border border-fiesta-teal/20",
+      'px-2 py-0.5 rounded-full text-xs font-bold bg-fiesta-teal/10 text-fiesta-teal border border-fiesta-teal/20',
   },
 };
 
-function StatusBadge({ status }: { status: GameDisplay["status"] }) {
+function StatusBadge({ status }: { status: GameDisplay['status'] }) {
   const cfg = STATUS_BADGE[status] ?? STATUS_BADGE.default;
 
   return (
@@ -62,11 +62,11 @@ function StatusBadge({ status }: { status: GameDisplay["status"] }) {
 
 // "7:30 pm CT" -> "7:30 PM CT"
 function fmtTime(t: string) {
-  return t.replace(/\bpm\b/i, "PM").replace(/\bam\b/i, "AM");
+  return t.replace(/\bpm\b/i, 'PM').replace(/\bam\b/i, 'AM');
 }
 
-function fullName(team: GameDisplay["homeTeam"]): string {
-  return [team.market, team.name].filter(Boolean).join(" ");
+function fullName(team: GameDisplay['homeTeam']): string {
+  return [team.market, team.name].filter(Boolean).join(' ');
 }
 
 function spursContext(game: GameDisplay) {
@@ -78,14 +78,9 @@ function spursContext(game: GameDisplay) {
   return { isSpursHome, spurs, opponent, spursScore, opponentScore };
 }
 
-function marginBlurb(
-  margin: number,
-  win: boolean,
-  opponentName: string,
-): string {
+function marginBlurb(margin: number, win: boolean, opponentName: string): string {
   if (win) {
-    if (margin <= 5)
-      return `Spurs owned the closing possessions in a one-score-pressure finish.`;
+    if (margin <= 5) return `Spurs owned the closing possessions in a one-score-pressure finish.`;
     if (margin <= 12)
       return `Spurs created just enough separation and kept ${opponentName} chasing late.`;
     return `Spurs controlled the shape of this one and turned it into a statement result.`;
@@ -98,15 +93,14 @@ function marginBlurb(
 }
 
 function cardBlurb(game: GameDisplay): string {
-  const { isSpursHome, opponent, spursScore, opponentScore } =
-    spursContext(game);
+  const { isSpursHome, opponent, spursScore, opponentScore } = spursContext(game);
   const opponentName = fullName(opponent);
   const margin = Math.abs(spursScore - opponentScore);
   const stage = spursPlayoffStageForGame(game);
 
-  if (game.status === "live") {
+  if (game.status === 'live') {
     if (spursScore === opponentScore) {
-      return `Spurs are level with ${opponentName}; the next clean stretch can tilt this ${stage ?? "game"}.`;
+      return `Spurs are level with ${opponentName}; the next clean stretch can tilt this ${stage ?? 'game'}.`;
     }
     if (spursScore > opponentScore) {
       return `Spurs have the edge right now; the story is whether they can keep the pace controlled.`;
@@ -114,7 +108,7 @@ function cardBlurb(game: GameDisplay): string {
     return `Spurs are within ${margin}; the next run is the story.`;
   }
 
-  if (game.status === "final") {
+  if (game.status === 'final') {
     return marginBlurb(margin, spursScore > opponentScore, opponentName);
   }
 
@@ -124,8 +118,8 @@ function cardBlurb(game: GameDisplay): string {
 }
 
 export default function GameCard({ game, isClickable = true }: Props) {
-  const isFinal = game.status === "final";
-  const showScore = game.status === "live" || isFinal;
+  const isFinal = game.status === 'final';
+  const showScore = game.status === 'live' || isFinal;
   const homeWon = isFinal && game.homeTeamScore > game.awayTeamScore;
   const awayWon = isFinal && !homeWon;
   const label = gameDisplayLabel(game);
@@ -155,18 +149,12 @@ export default function GameCard({ game, isClickable = true }: Props) {
           <div className="min-w-0">
             <div
               className={`font-bold text-xs sm:text-sm leading-tight truncate transition ${
-                homeWon
-                  ? "text-white"
-                  : awayWon
-                    ? "text-ui-muted"
-                    : "text-white"
+                homeWon ? 'text-white' : awayWon ? 'text-ui-muted' : 'text-white'
               }`}
             >
               <span className="sm:hidden">{game.homeTeam.name}</span>
               <span className="hidden sm:inline">
-                {[game.homeTeam.market, game.homeTeam.name]
-                  .filter(Boolean)
-                  .join(" ")}
+                {[game.homeTeam.market, game.homeTeam.name].filter(Boolean).join(' ')}
               </span>
             </div>
             <div className="text-[10px] text-ui-muted font-medium uppercase tracking-wider mt-0.5">
@@ -180,13 +168,13 @@ export default function GameCard({ game, isClickable = true }: Props) {
           {showScore ? (
             <div className="flex items-baseline gap-1">
               <span
-                className={`text-lg sm:text-2xl font-black tabular-nums ${homeWon ? "text-white" : "text-ui-muted"}`}
+                className={`text-lg sm:text-2xl font-black tabular-nums ${homeWon ? 'text-white' : 'text-ui-muted'}`}
               >
                 {game.homeTeamScore}
               </span>
               <span className="text-xs text-ui-muted font-bold mx-0.5">—</span>
               <span
-                className={`text-lg sm:text-2xl font-black tabular-nums ${awayWon ? "text-white" : "text-ui-muted"}`}
+                className={`text-lg sm:text-2xl font-black tabular-nums ${awayWon ? 'text-white' : 'text-ui-muted'}`}
               >
                 {game.awayTeamScore}
               </span>
@@ -203,18 +191,12 @@ export default function GameCard({ game, isClickable = true }: Props) {
           <div className="min-w-0 text-right">
             <div
               className={`font-bold text-xs sm:text-sm leading-tight truncate transition ${
-                awayWon
-                  ? "text-white"
-                  : homeWon
-                    ? "text-ui-muted"
-                    : "text-white"
+                awayWon ? 'text-white' : homeWon ? 'text-ui-muted' : 'text-white'
               }`}
             >
               <span className="sm:hidden">{game.awayTeam.name}</span>
               <span className="hidden sm:inline">
-                {[game.awayTeam.market, game.awayTeam.name]
-                  .filter(Boolean)
-                  .join(" ")}
+                {[game.awayTeam.market, game.awayTeam.name].filter(Boolean).join(' ')}
               </span>
             </div>
             <div className="text-[10px] text-ui-muted font-medium uppercase tracking-wider mt-0.5">
@@ -237,8 +219,8 @@ export default function GameCard({ game, isClickable = true }: Props) {
         <span className="text-center text-xs sm:text-sm font-black text-ui-muted whitespace-nowrap tabular-nums">
           {game.time
             ? fmtTime(game.time)
-            : game.status === "scheduled"
-              ? "TBD"
+            : game.status === 'scheduled'
+              ? 'TBD'
               : `7:00 PM ${CENTRAL_TIMEZONE_LABEL}`}
         </span>
         <StatusBadge status={game.status} />
@@ -251,9 +233,9 @@ export default function GameCard({ game, isClickable = true }: Props) {
   );
 
   const baseClass =
-    "block border border-zinc-800 rounded-2xl p-4 sm:p-5 bg-zinc-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]";
+    'block border border-zinc-800 rounded-2xl p-4 sm:p-5 bg-zinc-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]';
   const hoverClass =
-    "hover:border-fiesta-teal/50 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_28px_rgba(0,178,169,0.1)] transition-all duration-300 group";
+    'hover:border-fiesta-teal/50 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_28px_rgba(0,178,169,0.1)] transition-all duration-300 group';
 
   if (isClickable) {
     return (

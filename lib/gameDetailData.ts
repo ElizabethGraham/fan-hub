@@ -1,18 +1,14 @@
-import type { Metadata } from "next";
-import {
-  CENTRAL_TIMEZONE,
-  DATE_KEY_LOCALE,
-  SPURS_ALIAS,
-} from "@/lib/constants";
-import { isPossibleGame, isPregameGame } from "@/lib/gameDisplay";
-import { getNBASeasonYear } from "@/lib/nba";
-import { getSeasonSchedule } from "@/lib/schedule";
+import type { Metadata } from 'next';
+import { CENTRAL_TIMEZONE, DATE_KEY_LOCALE, SPURS_ALIAS } from '@/lib/constants';
+import { isPossibleGame, isPregameGame } from '@/lib/gameDisplay';
+import { getNBASeasonYear } from '@/lib/nba';
+import { getSeasonSchedule } from '@/lib/schedule';
 import {
   fetchSRDepthChart,
   fetchSRGameSummary,
   fetchSRTeamProfile,
   fetchSRTeamSeasonStats,
-} from "@/lib/sportradar";
+} from '@/lib/sportradar';
 import {
   applyDepthChart,
   applySeasonStats,
@@ -20,15 +16,10 @@ import {
   srSummaryToSplitStats,
   teamSeasonChartStats,
   teamSeasonChartStatsFromPlayers,
-} from "@/lib/sportradarMapper";
-import type {
-  GameDisplay,
-  NBAGameChartData,
-  NBAPlayer,
-  NBAPlayerStats,
-} from "@/lib/types";
+} from '@/lib/sportradarMapper';
+import type { GameDisplay, NBAGameChartData, NBAPlayer, NBAPlayerStats } from '@/lib/types';
 
-type WLResult = "W" | "L";
+type WLResult = 'W' | 'L';
 
 export type GameDetailPageData = {
   game: GameDisplay;
@@ -42,43 +33,35 @@ export type GameDetailPageData = {
   chartData: NBAGameChartData | null;
 };
 
-function teamFullName(team: GameDisplay["homeTeam"]): string {
-  return [team.market, team.name].filter(Boolean).join(" ");
+function teamFullName(team: GameDisplay['homeTeam']): string {
+  return [team.market, team.name].filter(Boolean).join(' ');
 }
 
 function last5WL(allGames: GameDisplay[], alias: string): WLResult[] {
   return allGames
     .filter(
       (game) =>
-        game.status === "final" &&
-        (game.homeTeam.alias === alias || game.awayTeam.alias === alias),
+        game.status === 'final' && (game.homeTeam.alias === alias || game.awayTeam.alias === alias),
     )
     .slice(0, 5)
     .map((game) => {
       const isHome = game.homeTeam.alias === alias;
       const teamScore = isHome ? game.homeTeamScore : game.awayTeamScore;
       const opponentScore = isHome ? game.awayTeamScore : game.homeTeamScore;
-      return teamScore > opponentScore ? "W" : "L";
+      return teamScore > opponentScore ? 'W' : 'L';
     });
 }
 
-function latestCompletedGameForTeam(
-  allGames: GameDisplay[],
-  alias: string,
-): GameDisplay | null {
+function latestCompletedGameForTeam(allGames: GameDisplay[], alias: string): GameDisplay | null {
   return (
     allGames.find(
       (game) =>
-        game.status === "final" &&
-        (game.homeTeam.alias === alias || game.awayTeam.alias === alias),
+        game.status === 'final' && (game.homeTeam.alias === alias || game.awayTeam.alias === alias),
     ) ?? null
   );
 }
 
-function applyLastGameStarters(
-  players: NBAPlayer[],
-  stats: NBAPlayerStats[],
-): NBAPlayer[] {
+function applyLastGameStarters(players: NBAPlayer[], stats: NBAPlayerStats[]): NBAPlayer[] {
   const currentRanks = players
     .map((player) => player.depthChartRank)
     .filter((rank): rank is number => rank !== undefined);
@@ -107,8 +90,7 @@ function applyLastGameStarters(
 
 function spursGames(games: GameDisplay[]): GameDisplay[] {
   return games.filter(
-    (game) =>
-      game.homeTeam.alias === SPURS_ALIAS || game.awayTeam.alias === SPURS_ALIAS,
+    (game) => game.homeTeam.alias === SPURS_ALIAS || game.awayTeam.alias === SPURS_ALIAS,
   );
 }
 
@@ -124,30 +106,20 @@ function featuredGame(games: GameDisplay[]): GameDisplay | null {
   const today = new Intl.DateTimeFormat(DATE_KEY_LOCALE, {
     timeZone: CENTRAL_TIMEZONE,
   }).format(new Date());
-  const live = games.filter((item) => item.status === "live").sort(byDateAsc);
+  const live = games.filter((item) => item.status === 'live').sort(byDateAsc);
   const confirmedUpcoming = games
-    .filter(
-      (item) =>
-        item.status === "scheduled" && item.date >= today && !isPossibleGame(item),
-    )
+    .filter((item) => item.status === 'scheduled' && item.date >= today && !isPossibleGame(item))
     .sort(byDateAsc);
-  const recent = games.filter((item) => item.status === "final").sort(byDateDesc);
+  const recent = games.filter((item) => item.status === 'final').sort(byDateDesc);
   const possibleUpcoming = games
     .filter((item) => item.date >= today && isPossibleGame(item))
     .sort(byDateAsc);
 
-  return (
-    live[0] ??
-    confirmedUpcoming[0] ??
-    recent[0] ??
-    possibleUpcoming[0] ??
-    games[0] ??
-    null
-  );
+  return live[0] ?? confirmedUpcoming[0] ?? recent[0] ?? possibleUpcoming[0] ?? games[0] ?? null;
 }
 
 function shouldShowDotRace(game: GameDisplay, allGames: GameDisplay[]): boolean {
-  if (game.status === "live") return true;
+  if (game.status === 'live') return true;
   return featuredGame(spursGames(allGames))?.id === game.id;
 }
 
@@ -175,12 +147,10 @@ async function loadRoster(teamId: string): Promise<NBAPlayer[]> {
   }
 }
 
-export async function getGameDetailMetadata(
-  id: string,
-): Promise<Metadata> {
+export async function getGameDetailMetadata(id: string): Promise<Metadata> {
   try {
     const game = (await getSeasonSchedule()).find((item) => item.id === id);
-    if (!game) return { title: "Game Not Found | Spurs Fan Hub" };
+    if (!game) return { title: 'Game Not Found | Spurs Fan Hub' };
     const homeFull = teamFullName(game.homeTeam);
     const awayFull = teamFullName(game.awayTeam);
 
@@ -190,22 +160,20 @@ export async function getGameDetailMetadata(
       openGraph: {
         title: `${homeFull} vs ${awayFull} | Spurs Fan Hub`,
         description: game.preview.headline,
-        type: "article",
+        type: 'article',
       },
       twitter: {
-        card: "summary",
+        card: 'summary',
         title: `${homeFull} vs ${awayFull} | Spurs Fan Hub`,
         description: game.preview.headline,
       },
     };
   } catch {
-    return { title: "Spurs Fan Hub" };
+    return { title: 'Spurs Fan Hub' };
   }
 }
 
-export async function getGameDetailPageData(
-  id: string,
-): Promise<GameDetailPageData | null> {
+export async function getGameDetailPageData(id: string): Promise<GameDetailPageData | null> {
   let allGames: GameDisplay[] = [];
   try {
     allGames = await getSeasonSchedule();
@@ -229,42 +197,36 @@ export async function getGameDetailPageData(
     loadRoster(homeTeamId),
     loadRoster(awayTeamId),
   ]);
-  let homeSeasonChartStats: NBAGameChartData["homeStats"] | null = null;
-  let awaySeasonChartStats: NBAGameChartData["awayStats"] | null = null;
+  let homeSeasonChartStats: NBAGameChartData['homeStats'] | null = null;
+  let awaySeasonChartStats: NBAGameChartData['awayStats'] | null = null;
 
   if (isPregameGame(game.status)) {
     const seasonYear = getNBASeasonYear();
-    const [
-      homeDepth,
-      awayDepth,
-      homeSeason,
-      awaySeason,
-      homeLastStarters,
-      awayLastStarters,
-    ] = await Promise.allSettled([
-      fetchSRDepthChart(homeTeamId),
-      fetchSRDepthChart(awayTeamId),
-      fetchSRTeamSeasonStats(homeTeamId, seasonYear),
-      fetchSRTeamSeasonStats(awayTeamId, seasonYear),
-      lastStarterStatsForTeam(allGames, game.homeTeam.alias),
-      lastStarterStatsForTeam(allGames, game.awayTeam.alias),
-    ]);
+    const [homeDepth, awayDepth, homeSeason, awaySeason, homeLastStarters, awayLastStarters] =
+      await Promise.allSettled([
+        fetchSRDepthChart(homeTeamId),
+        fetchSRDepthChart(awayTeamId),
+        fetchSRTeamSeasonStats(homeTeamId, seasonYear),
+        fetchSRTeamSeasonStats(awayTeamId, seasonYear),
+        lastStarterStatsForTeam(allGames, game.homeTeam.alias),
+        lastStarterStatsForTeam(allGames, game.awayTeam.alias),
+      ]);
 
-    if (homeDepth.status === "fulfilled")
+    if (homeDepth.status === 'fulfilled')
       homePlayers = applyDepthChart(homePlayers, homeDepth.value);
-    if (awayDepth.status === "fulfilled")
+    if (awayDepth.status === 'fulfilled')
       awayPlayers = applyDepthChart(awayPlayers, awayDepth.value);
-    if (homeSeason.status === "fulfilled") {
+    if (homeSeason.status === 'fulfilled') {
       homePlayers = applySeasonStats(homePlayers, homeSeason.value);
       homeSeasonChartStats = teamSeasonChartStats(homeSeason.value);
     }
-    if (awaySeason.status === "fulfilled") {
+    if (awaySeason.status === 'fulfilled') {
       awayPlayers = applySeasonStats(awayPlayers, awaySeason.value);
       awaySeasonChartStats = teamSeasonChartStats(awaySeason.value);
     }
-    if (homeLastStarters.status === "fulfilled")
+    if (homeLastStarters.status === 'fulfilled')
       homePlayers = applyLastGameStarters(homePlayers, homeLastStarters.value);
-    if (awayLastStarters.status === "fulfilled")
+    if (awayLastStarters.status === 'fulfilled')
       awayPlayers = applyLastGameStarters(awayPlayers, awayLastStarters.value);
   }
 
@@ -272,7 +234,7 @@ export async function getGameDetailPageData(
   let awayStats: NBAPlayerStats[] = [];
   let chartData: NBAGameChartData | null = null;
 
-  if (game.status === "final" || game.status === "live") {
+  if (game.status === 'final' || game.status === 'live') {
     try {
       const split = srSummaryToSplitStats(await fetchSRGameSummary(game.id));
       homeStats = split.homeStats;
@@ -282,10 +244,8 @@ export async function getGameDetailPageData(
       /* SR summary unavailable */
     }
   } else if (isPregameGame(game.status)) {
-    const homeSeasonStats =
-      homeSeasonChartStats ?? teamSeasonChartStatsFromPlayers(homePlayers);
-    const awaySeasonStats =
-      awaySeasonChartStats ?? teamSeasonChartStatsFromPlayers(awayPlayers);
+    const homeSeasonStats = homeSeasonChartStats ?? teamSeasonChartStatsFromPlayers(homePlayers);
+    const awaySeasonStats = awaySeasonChartStats ?? teamSeasonChartStatsFromPlayers(awayPlayers);
     if (homeSeasonStats && awaySeasonStats) {
       chartData = {
         homeStats: homeSeasonStats,

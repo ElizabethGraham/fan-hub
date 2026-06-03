@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import type {
   GameDisplay,
   NBAGameChartData,
   NBAPlayerStats,
   NBAQuarterScore,
   NBATeamChartStats,
-} from "@/lib/types";
-import { isPregameGame } from "@/lib/gameDisplay";
+} from '@/lib/types';
+import { isPregameGame } from '@/lib/gameDisplay';
 
 type Props = {
   game: GameDisplay;
@@ -17,9 +17,7 @@ type Props = {
   chartData?: NBAGameChartData | null;
 };
 
-function teamTotalsFromStats(
-  stats: NBAPlayerStats[],
-): NBATeamChartStats | null {
+function teamTotalsFromStats(stats: NBAPlayerStats[]): NBATeamChartStats | null {
   if (!stats.length) return null;
   const fgm = stats.reduce((s, p) => s + p.fgm, 0);
   const fga = stats.reduce((s, p) => s + p.fga, 0);
@@ -35,8 +33,8 @@ function teamTotalsFromStats(
   };
 }
 
-const HOME_COLOR = "#00b2a9";
-const AWAY_COLOR = "#e8338a";
+const HOME_COLOR = '#00b2a9';
+const AWAY_COLOR = '#e8338a';
 
 type MetricKey = keyof NBATeamChartStats;
 
@@ -47,12 +45,12 @@ const METRICS: {
   isPercent?: boolean;
   lowerWins?: boolean;
 }[] = [
-  { key: "fgPct", label: "FG%", maxVal: 60, isPercent: true },
-  { key: "fg3Pct", label: "3P%", maxVal: 50, isPercent: true },
-  { key: "reb", label: "REB", maxVal: 60 },
-  { key: "ast", label: "AST", maxVal: 40 },
-  { key: "stl", label: "STL", maxVal: 15 },
-  { key: "tov", label: "TOV", maxVal: 25, lowerWins: true },
+  { key: 'fgPct', label: 'FG%', maxVal: 60, isPercent: true },
+  { key: 'fg3Pct', label: '3P%', maxVal: 50, isPercent: true },
+  { key: 'reb', label: 'REB', maxVal: 60 },
+  { key: 'ast', label: 'AST', maxVal: 40 },
+  { key: 'stl', label: 'STL', maxVal: 15 },
+  { key: 'tov', label: 'TOV', maxVal: 25, lowerWins: true },
 ];
 
 function fmtMetric(value: number, isPercent?: boolean): string {
@@ -82,12 +80,12 @@ function QuarterChart({
 }) {
   const periodValue = (
     period: NBAQuarterScore,
-    side: "homeStats" | "awayStats",
+    side: 'homeStats' | 'awayStats',
     fallback: number,
   ) => (metric ? period[side]?.[metric] : fallback) ?? fallback;
   const allVals = periods.flatMap((period) => [
-    periodValue(period, "homeStats", period.home),
-    periodValue(period, "awayStats", period.away),
+    periodValue(period, 'homeStats', period.home),
+    periodValue(period, 'awayStats', period.away),
   ]);
   const maxVal = metric ? Math.max(...allVals, 1) : Math.max(...allVals, 30);
   const chartTop = 12;
@@ -99,31 +97,15 @@ function QuarterChart({
   const totalW = leftPad + periods.length * groupGap + 8;
 
   return (
-    <svg
-      viewBox={`0 0 ${totalW} ${chartTop + chartH + 32}`}
-      className="w-full overflow-visible"
-    >
+    <svg viewBox={`0 0 ${totalW} ${chartTop + chartH + 32}`} className="w-full overflow-visible">
       {/* Y-axis lines */}
       {[0, 25, 50, 75, 100].map((pct) => {
         const y = chartTop + chartH - (pct / 100) * chartH;
         const val = Math.round((pct / 100) * maxVal);
         return (
           <g key={pct}>
-            <line
-              x1={leftPad}
-              y1={y}
-              x2={totalW}
-              y2={y}
-              stroke="#27272a"
-              strokeWidth="0.5"
-            />
-            <text
-              x={leftPad - 4}
-              y={y + 3}
-              textAnchor="end"
-              fill="#52525b"
-              fontSize="6"
-            >
+            <line x1={leftPad} y1={y} x2={totalW} y2={y} stroke="#27272a" strokeWidth="0.5" />
+            <text x={leftPad - 4} y={y + 3} textAnchor="end" fill="#52525b" fontSize="6">
               {val}
             </text>
           </g>
@@ -132,8 +114,8 @@ function QuarterChart({
 
       {periods.map((period, qi) => {
         const groupX = leftPad + qi * groupGap + 4;
-        const homeVal = periodValue(period, "homeStats", period.home);
-        const awayVal = periodValue(period, "awayStats", period.away);
+        const homeVal = periodValue(period, 'homeStats', period.home);
+        const awayVal = periodValue(period, 'awayStats', period.away);
         const homeH = animated ? (homeVal / maxVal) * chartH : 0;
         const awayH = animated ? (awayVal / maxVal) * chartH : 0;
         const homeY = chartTop + chartH - homeH;
@@ -141,8 +123,8 @@ function QuarterChart({
 
         const selected = qi === selectedIndex;
         const dimmed = selectedIndex !== null && !selected;
-        const homeBarColor = dimmed ? "#3f3f46" : HOME_COLOR;
-        const awayBarColor = dimmed ? "#3f3f46" : AWAY_COLOR;
+        const homeBarColor = dimmed ? '#3f3f46' : HOME_COLOR;
+        const awayBarColor = dimmed ? '#3f3f46' : AWAY_COLOR;
 
         return (
           <g
@@ -154,7 +136,7 @@ function QuarterChart({
             className="cursor-pointer outline-none"
             onClick={() => onSelect(qi)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
+              if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 onSelect(qi);
               }
@@ -171,7 +153,7 @@ function QuarterChart({
               opacity="0.85"
               style={{
                 transition:
-                  "height 0.7s cubic-bezier(.25,.46,.45,.94), y 0.7s cubic-bezier(.25,.46,.45,.94), fill 0.2s ease",
+                  'height 0.7s cubic-bezier(.25,.46,.45,.94), y 0.7s cubic-bezier(.25,.46,.45,.94), fill 0.2s ease',
               }}
             />
             {/* Score label */}
@@ -199,7 +181,7 @@ function QuarterChart({
               opacity="0.85"
               style={{
                 transition:
-                  "height 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, y 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, fill 0.2s ease",
+                  'height 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, y 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, fill 0.2s ease',
               }}
             />
             {animated && (
@@ -274,8 +256,8 @@ function StatBar({
       aria-pressed={selected}
       className={`grid w-full grid-cols-[1fr_auto_1fr] items-center gap-1.5 rounded-xl border px-2 py-2 text-left transition sm:gap-2 ${
         selected
-          ? "border-fiesta-teal/50 bg-fiesta-teal/5"
-          : "border-transparent hover:border-zinc-800 hover:bg-zinc-950/35"
+          ? 'border-fiesta-teal/50 bg-fiesta-teal/5'
+          : 'border-transparent hover:border-zinc-800 hover:bg-zinc-950/35'
       }`}
     >
       {/* Home bar (right-aligned) */}
@@ -288,7 +270,7 @@ function StatBar({
             className="h-full rounded-full bg-fiesta-teal"
             style={{
               width: `${homeW}%`,
-              transition: "width 0.8s cubic-bezier(.25,.46,.45,.94)",
+              transition: 'width 0.8s cubic-bezier(.25,.46,.45,.94)',
             }}
           />
         </div>
@@ -306,7 +288,7 @@ function StatBar({
             className="h-full rounded-full bg-fiesta-pink"
             style={{
               width: `${awayW}%`,
-              transition: "width 0.8s cubic-bezier(.25,.46,.45,.94) 0.05s",
+              transition: 'width 0.8s cubic-bezier(.25,.46,.45,.94) 0.05s',
             }}
           />
         </div>
@@ -326,9 +308,7 @@ export default function GameCharts({
 }: Props) {
   const [animated, setAnimated] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<MetricKey | null>(null);
-  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState<number | null>(
-    null,
-  );
+  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState<number | null>(null);
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 80);
     return () => clearTimeout(t);
@@ -345,19 +325,15 @@ export default function GameCharts({
 
   const showQuarters = !!chartData?.periods.length;
   const hasPerQuarterStatData =
-    chartData?.periods.some(
-      (p) => p.homeStats !== undefined || p.awayStats !== undefined,
-    ) ?? false;
-  const sectionLabel = isPregame ? "Season Averages" : "Game Stats";
+    chartData?.periods.some((p) => p.homeStats !== undefined || p.awayStats !== undefined) ?? false;
+  const sectionLabel = isPregame ? 'Season Averages' : 'Game Stats';
   const isDerived = !chartData && hasDerivedStats;
   const availableMetrics = METRICS;
   const selectedMetricDef = selectedMetric
     ? availableMetrics.find((metric) => metric.key === selectedMetric)
     : undefined;
-  const homeSelected =
-    homeS && selectedMetricDef ? homeS[selectedMetricDef.key] : 0;
-  const awaySelected =
-    awayS && selectedMetricDef ? awayS[selectedMetricDef.key] : 0;
+  const homeSelected = homeS && selectedMetricDef ? homeS[selectedMetricDef.key] : 0;
+  const awaySelected = awayS && selectedMetricDef ? awayS[selectedMetricDef.key] : 0;
   const homeHasEdge = selectedMetricDef
     ? selectedMetricDef.lowerWins
       ? homeSelected < awaySelected
@@ -376,8 +352,8 @@ export default function GameCharts({
         </div>
         <p className="text-xs text-ui-muted">
           {isPregame
-            ? "Season stat data is unavailable right now."
-            : "Game stats are unavailable right now."}
+            ? 'Season stat data is unavailable right now.'
+            : 'Game stats are unavailable right now.'}
         </p>
       </div>
     );
@@ -389,20 +365,16 @@ export default function GameCharts({
         {sectionLabel}
       </div>
 
-      <div
-        className={showQuarters ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : ""}
-      >
+      <div className={showQuarters ? 'grid grid-cols-1 sm:grid-cols-2 gap-6' : ''}>
         {/* Team stat comparison */}
-        <div className={showQuarters ? "space-y-3 sm:pt-20" : "space-y-3"}>
+        <div className={showQuarters ? 'space-y-3 sm:pt-20' : 'space-y-3'}>
           {/* Team headers */}
           <div className="grid grid-cols-[1fr_auto_1fr] gap-2 mb-4">
             <span className="text-xs font-black text-fiesta-teal text-right">
               {game.homeTeam.alias}
             </span>
             <span className="w-12" />
-            <span className="text-xs font-black text-fiesta-pink">
-              {game.awayTeam.alias}
-            </span>
+            <span className="text-xs font-black text-fiesta-pink">{game.awayTeam.alias}</span>
           </div>
           {availableMetrics.map((metric) => (
             <StatBar
@@ -415,9 +387,7 @@ export default function GameCharts({
               animated={animated}
               selected={selectedMetric === metric.key}
               onSelect={() =>
-                setSelectedMetric((current) =>
-                  current === metric.key ? null : metric.key,
-                )
+                setSelectedMetric((current) => (current === metric.key ? null : metric.key))
               }
             />
           ))}
@@ -426,16 +396,16 @@ export default function GameCharts({
             aria-live="polite"
           >
             <div className="text-[9px] font-black uppercase tracking-widest text-ui-muted">
-              {selectedMetricDef ? "Selected Edge" : "Quarter View"}
+              {selectedMetricDef ? 'Selected Edge' : 'Quarter View'}
             </div>
             <div className="mt-1 text-xs font-semibold leading-relaxed text-zinc-300">
               {selectedMetricDef
                 ? homeHasEdge
-                  ? `${game.homeTeam.alias} has the ${selectedMetricDef.lowerWins ? "cleaner" : "stronger"} ${selectedMetricDef.label} mark, ${fmtMetric(homeSelected, selectedMetricDef.isPercent)} to ${fmtMetric(awaySelected, selectedMetricDef.isPercent)}.`
+                  ? `${game.homeTeam.alias} has the ${selectedMetricDef.lowerWins ? 'cleaner' : 'stronger'} ${selectedMetricDef.label} mark, ${fmtMetric(homeSelected, selectedMetricDef.isPercent)} to ${fmtMetric(awaySelected, selectedMetricDef.isPercent)}.`
                   : awayHasEdge
-                    ? `${game.awayTeam.alias} has the ${selectedMetricDef.lowerWins ? "cleaner" : "stronger"} ${selectedMetricDef.label} mark, ${fmtMetric(awaySelected, selectedMetricDef.isPercent)} to ${fmtMetric(homeSelected, selectedMetricDef.isPercent)}.`
+                    ? `${game.awayTeam.alias} has the ${selectedMetricDef.lowerWins ? 'cleaner' : 'stronger'} ${selectedMetricDef.label} mark, ${fmtMetric(awaySelected, selectedMetricDef.isPercent)} to ${fmtMetric(homeSelected, selectedMetricDef.isPercent)}.`
                     : `Both teams are even in ${selectedMetricDef.label} at ${fmtMetric(homeSelected, selectedMetricDef.isPercent)}.`
-                : "Select a stat above to explore different game trends."}
+                : 'Select a stat above to explore different game trends.'}
             </div>
           </div>
         </div>
@@ -446,35 +416,26 @@ export default function GameCharts({
             <div className="text-[10px] font-black text-ui-muted uppercase tracking-widest mb-3">
               {selectedMetricDef && hasPerQuarterStatData
                 ? `${selectedMetricDef.label} by Quarter`
-                : "Points by Quarter"}
+                : 'Points by Quarter'}
             </div>
             {selectedMetricDef && !hasPerQuarterStatData && (
               <p className="text-[10px] text-ui-muted mb-2">
-                Quarter-level {selectedMetricDef.label} not available; showing
-                points.
+                Quarter-level {selectedMetricDef.label} not available; showing points.
               </p>
             )}
             <QuarterChart
               periods={chartData.periods}
               homeAbbr={game.homeTeam.alias}
               awayAbbr={game.awayTeam.alias}
-              metric={
-                hasPerQuarterStatData ? (selectedMetricDef?.key ?? null) : null
-              }
+              metric={hasPerQuarterStatData ? (selectedMetricDef?.key ?? null) : null}
               metricLabel={
-                selectedMetricDef && hasPerQuarterStatData
-                  ? selectedMetricDef.label
-                  : "PTS"
+                selectedMetricDef && hasPerQuarterStatData ? selectedMetricDef.label : 'PTS'
               }
-              isPercent={
-                hasPerQuarterStatData ? selectedMetricDef?.isPercent : undefined
-              }
+              isPercent={hasPerQuarterStatData ? selectedMetricDef?.isPercent : undefined}
               animated={animated}
               selectedIndex={selectedPeriodIndex}
               onSelect={(index) =>
-                setSelectedPeriodIndex((current) =>
-                  current === index ? null : index,
-                )
+                setSelectedPeriodIndex((current) => (current === index ? null : index))
               }
             />
           </div>

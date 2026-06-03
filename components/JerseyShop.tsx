@@ -1,21 +1,27 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useState } from "react";
-import confetti from "canvas-confetti";
+import Image from 'next/image';
+import { useState } from 'react';
+import confetti from 'canvas-confetti';
 
-const SIZES = ["S", "M", "L", "XL", "2XL"] as const;
+const SIZES = ['S', 'M', 'L', 'XL', '2XL'] as const;
 type Size = (typeof SIZES)[number];
 
 function fireConfetti() {
-  const colors = ["#00b2a9", "#e8338a", "#f58220", "#ffffff", "#c4ced4"];
+  const colors = ['#00b2a9', '#e8338a', '#f58220', '#ffffff', '#c4ced4'];
   confetti({ particleCount: 80, spread: 70, origin: { y: 0.55 }, colors });
-  setTimeout(() => confetti({ particleCount: 60, spread: 90, origin: { y: 0.45, x: 0.35 }, colors }), 180);
-  setTimeout(() => confetti({ particleCount: 60, spread: 90, origin: { y: 0.45, x: 0.65 }, colors }), 320);
+  setTimeout(
+    () => confetti({ particleCount: 60, spread: 90, origin: { y: 0.45, x: 0.35 }, colors }),
+    180,
+  );
+  setTimeout(
+    () => confetti({ particleCount: 60, spread: 90, origin: { y: 0.45, x: 0.65 }, colors }),
+    320,
+  );
 }
 
 export default function JerseyShop() {
-  const [selectedSize, setSelectedSize] = useState<Size>("L");
+  const [selectedSize, setSelectedSize] = useState<Size>('L');
   const [ordered, setOrdered] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
@@ -59,16 +65,16 @@ export default function JerseyShop() {
             <div className="text-[10px] font-black text-ui-muted uppercase tracking-widest">
               2025-26 City Edition
             </div>
-            <div className="text-xl font-black text-white leading-tight mt-0.5">
-              Fiesta Jersey
-            </div>
+            <div className="text-xl font-black text-white leading-tight mt-0.5">Fiesta Jersey</div>
             <div className="text-sm text-ui-muted mt-0.5">#1 · Victor Wembanyama</div>
             <div className="text-2xl font-black text-white mt-3">$189.99</div>
           </div>
 
           {/* Size selector */}
           <div>
-            <div className="text-[9px] font-black text-ui-muted uppercase tracking-widest mb-2">Size</div>
+            <div className="text-[9px] font-black text-ui-muted uppercase tracking-widest mb-2">
+              Size
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {SIZES.map((size) => (
                 <button
@@ -77,8 +83,8 @@ export default function JerseyShop() {
                   aria-pressed={selectedSize === size}
                   className={`w-9 h-9 rounded-lg text-xs font-black border transition-all ${
                     selectedSize === size
-                      ? "border-fiesta-teal bg-fiesta-teal/10 text-fiesta-teal"
-                      : "border-zinc-700 text-ui-muted hover:border-zinc-500 hover:text-zinc-300"
+                      ? 'border-fiesta-teal bg-fiesta-teal/10 text-fiesta-teal'
+                      : 'border-zinc-700 text-ui-muted hover:border-zinc-500 hover:text-zinc-300'
                   }`}
                 >
                   {size}
@@ -93,17 +99,19 @@ export default function JerseyShop() {
             disabled={loading}
             className={`w-full py-3 rounded-xl text-sm font-black tracking-wide transition-all ${
               ordered
-                ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 cursor-default"
+                ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 cursor-default'
                 : loading
-                ? "bg-zinc-800 text-ui-muted cursor-wait"
-                : "bg-fiesta-teal text-zinc-950 hover:bg-fiesta-teal/90 active:scale-95"
+                  ? 'bg-zinc-800 text-ui-muted cursor-wait'
+                  : 'bg-fiesta-teal text-zinc-950 hover:bg-fiesta-teal/90 active:scale-95'
             }`}
           >
-            {ordered ? "✓ Order Confirmed!" : loading ? "Processing..." : "Order Now"}
+            {ordered ? '✓ Order Confirmed!' : loading ? 'Processing...' : 'Order Now'}
           </button>
 
           {/* Pickup info */}
-          <div className={`text-xs leading-relaxed transition-all duration-500 ${ordered ? "text-zinc-300" : "text-ui-muted"}`}>
+          <div
+            className={`text-xs leading-relaxed transition-all duration-500 ${ordered ? 'text-zinc-300' : 'text-ui-muted'}`}
+          >
             <span className="font-bold">📍 Pick up at the Fan Shop</span>
             <br />
             Section 221 · AT&amp;T Center · San Antonio

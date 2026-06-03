@@ -3,22 +3,14 @@ import type {
   PlayoffLeader,
   PlayoffSnapshotData,
   PlayoffTrendGame,
-} from "@/components/PlayoffSnapshot";
-import {
-  CENTRAL_TIMEZONE,
-  DATE_KEY_LOCALE,
-  SPURS_ALIAS,
-} from "@/lib/constants";
-import { isPossibleGame } from "@/lib/gameDisplay";
-import { spursOpponent, spursSeriesLabel } from "@/lib/playoffs";
-import { getSeasonSchedule } from "@/lib/schedule";
-import { fetchSRGameSummary } from "@/lib/sportradar";
-import { srSummaryToSplitStats } from "@/lib/sportradarMapper";
-import type {
-  GameDisplay,
-  NBAPlayerStats,
-  NBATeamChartStats,
-} from "@/lib/types";
+} from '@/components/PlayoffSnapshot';
+import { CENTRAL_TIMEZONE, DATE_KEY_LOCALE, SPURS_ALIAS } from '@/lib/constants';
+import { isPossibleGame } from '@/lib/gameDisplay';
+import { spursOpponent, spursSeriesLabel } from '@/lib/playoffs';
+import { getSeasonSchedule } from '@/lib/schedule';
+import { fetchSRGameSummary } from '@/lib/sportradar';
+import { srSummaryToSplitStats } from '@/lib/sportradarMapper';
+import type { GameDisplay, NBAPlayerStats, NBATeamChartStats } from '@/lib/types';
 
 export type HomeGameSections = {
   featured: GameDisplay | null;
@@ -49,24 +41,17 @@ function byDateDesc(a: GameDisplay, b: GameDisplay): number {
 
 export function sectionGames(games: GameDisplay[]): HomeGameSections {
   const today = centralToday();
-  const live = games.filter((g) => g.status === "live").sort(byDateAsc);
-  const recent = games.filter((g) => g.status === "final").sort(byDateDesc);
+  const live = games.filter((g) => g.status === 'live').sort(byDateAsc);
+  const recent = games.filter((g) => g.status === 'final').sort(byDateDesc);
   const confirmedUpcoming = games
-    .filter(
-      (g) => g.status === "scheduled" && g.date >= today && !isPossibleGame(g),
-    )
+    .filter((g) => g.status === 'scheduled' && g.date >= today && !isPossibleGame(g))
     .sort(byDateAsc);
   const possibleUpcoming = games
     .filter((g) => g.date >= today && isPossibleGame(g))
     .sort(byDateAsc);
 
   const featured =
-    live[0] ??
-    confirmedUpcoming[0] ??
-    recent[0] ??
-    possibleUpcoming[0] ??
-    games[0] ??
-    null;
+    live[0] ?? confirmedUpcoming[0] ?? recent[0] ?? possibleUpcoming[0] ?? games[0] ?? null;
   const withoutFeatured = (game: GameDisplay) => game.id !== featured?.id;
 
   return {
@@ -80,8 +65,7 @@ export function sectionGames(games: GameDisplay[]): HomeGameSections {
 
 function spursGames(games: GameDisplay[]): GameDisplay[] {
   return games.filter(
-    (game) =>
-      game.homeTeam.alias === SPURS_ALIAS || game.awayTeam.alias === SPURS_ALIAS,
+    (game) => game.homeTeam.alias === SPURS_ALIAS || game.awayTeam.alias === SPURS_ALIAS,
   );
 }
 
@@ -117,12 +101,8 @@ type PlayerTotals = {
   ast: number;
 };
 
-async function getPlayoffSnapshot(
-  games: GameDisplay[],
-): Promise<PlayoffSnapshotData | null> {
-  const completed = games
-    .filter((game) => game.status === "final")
-    .sort(byDateAsc);
+async function getPlayoffSnapshot(games: GameDisplay[]): Promise<PlayoffSnapshotData | null> {
+  const completed = games.filter((game) => game.status === 'final').sort(byDateAsc);
 
   if (completed.length === 0) return null;
 
@@ -131,9 +111,7 @@ async function getPlayoffSnapshot(
       const summary = await fetchSRGameSummary(game.id);
       const split = srSummaryToSplitStats(summary);
       const isSpursHome = game.homeTeam.alias === SPURS_ALIAS;
-      const teamStats = isSpursHome
-        ? split.chartData?.homeStats
-        : split.chartData?.awayStats;
+      const teamStats = isSpursHome ? split.chartData?.homeStats : split.chartData?.awayStats;
       const playerStats = isSpursHome ? split.homeStats : split.awayStats;
       if (!teamStats) return null;
 
@@ -146,7 +124,7 @@ async function getPlayoffSnapshot(
   );
 
   const rows = summaries
-    .filter((result) => result.status === "fulfilled" && result.value)
+    .filter((result) => result.status === 'fulfilled' && result.value)
     .map(
       (result) =>
         (
@@ -162,43 +140,33 @@ async function getPlayoffSnapshot(
 
   const wins = rows.filter(({ game }) => {
     const spursScore =
-      game.homeTeam.alias === SPURS_ALIAS
-        ? game.homeTeamScore
-        : game.awayTeamScore;
+      game.homeTeam.alias === SPURS_ALIAS ? game.homeTeamScore : game.awayTeamScore;
     const opponentScore =
-      game.homeTeam.alias === SPURS_ALIAS
-        ? game.awayTeamScore
-        : game.homeTeamScore;
+      game.homeTeam.alias === SPURS_ALIAS ? game.awayTeamScore : game.homeTeamScore;
     return spursScore > opponentScore;
   }).length;
 
-  const trend: PlayoffTrendGame[] = rows.map(
-    ({ game, playerStats, teamStats }) => {
-      const spursPoints =
-        game.homeTeam.alias === SPURS_ALIAS
-          ? game.homeTeamScore
-          : game.awayTeamScore;
-      const opponentPoints =
-        game.homeTeam.alias === SPURS_ALIAS
-          ? game.awayTeamScore
-          : game.homeTeamScore;
-      const opponent = spursOpponent(game);
-      const result = spursPoints > opponentPoints ? "W" : "L";
-      return {
-        id: game.id,
-        label: game.title ?? game.date,
-        seriesLabel: spursSeriesLabel(game),
-        opponentAlias: opponent.alias,
-        spursPoints,
-        opponentPoints,
-        result,
-        fgPct: teamStats.fgPct,
-        reb: teamStats.reb,
-        ast: teamStats.ast,
-        leaders: gameLeaders(playerStats),
-      };
-    },
-  );
+  const trend: PlayoffTrendGame[] = rows.map(({ game, playerStats, teamStats }) => {
+    const spursPoints =
+      game.homeTeam.alias === SPURS_ALIAS ? game.homeTeamScore : game.awayTeamScore;
+    const opponentPoints =
+      game.homeTeam.alias === SPURS_ALIAS ? game.awayTeamScore : game.homeTeamScore;
+    const opponent = spursOpponent(game);
+    const result = spursPoints > opponentPoints ? 'W' : 'L';
+    return {
+      id: game.id,
+      label: game.title ?? game.date,
+      seriesLabel: spursSeriesLabel(game),
+      opponentAlias: opponent.alias,
+      spursPoints,
+      opponentPoints,
+      result,
+      fgPct: teamStats.fgPct,
+      reb: teamStats.reb,
+      ast: teamStats.ast,
+      leaders: gameLeaders(playerStats),
+    };
+  });
 
   const playerTotals = new Map<string, PlayerTotals>();
   for (const row of rows) {

@@ -13,19 +13,15 @@ function errorDetails(error: unknown) {
   }
 
   return {
-    name: "UnknownError",
+    name: 'UnknownError',
     message: String(error),
   };
 }
 
-export function logServerError(
-  event: string,
-  error: unknown,
-  context: LogContext = {},
-) {
+export function logServerError(event: string, error: unknown, context: LogContext = {}) {
   console.error(
     JSON.stringify({
-      level: "error",
+      level: 'error',
       event,
       context,
       error: errorDetails(error),

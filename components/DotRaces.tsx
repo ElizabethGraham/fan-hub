@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import confetti from "canvas-confetti";
+import { useEffect, useRef, useState } from 'react';
+import confetti from 'canvas-confetti';
 
-type Dot = "red" | "green" | "blue";
-type Phase = "pick" | "locked" | "countdown" | "racing" | "result";
+type Dot = 'red' | 'green' | 'blue';
+type Phase = 'pick' | 'locked' | 'countdown' | 'racing' | 'result';
 
 const DOTS: Record<
   Dot,
@@ -18,32 +18,32 @@ const DOTS: Record<
   }
 > = {
   red: {
-    label: "Red",
-    fill: "#ef4444",
-    bg: "bg-red-500",
-    border: "border-red-500/60",
-    text: "text-red-200",
-    ring: "ring-red-500/30",
+    label: 'Red',
+    fill: '#ef4444',
+    bg: 'bg-red-500',
+    border: 'border-red-500/60',
+    text: 'text-red-200',
+    ring: 'ring-red-500/30',
   },
   green: {
-    label: "Green",
-    fill: "#22c55e",
-    bg: "bg-green-500",
-    border: "border-green-500/60",
-    text: "text-emerald-200",
-    ring: "ring-emerald-500/30",
+    label: 'Green',
+    fill: '#22c55e',
+    bg: 'bg-green-500',
+    border: 'border-green-500/60',
+    text: 'text-emerald-200',
+    ring: 'ring-emerald-500/30',
   },
   blue: {
-    label: "Blue",
-    fill: "#3b82f6",
-    bg: "bg-blue-500",
-    border: "border-blue-500/60",
-    text: "text-blue-200",
-    ring: "ring-blue-500/30",
+    label: 'Blue',
+    fill: '#3b82f6',
+    bg: 'bg-blue-500',
+    border: 'border-blue-500/60',
+    text: 'text-blue-200',
+    ring: 'ring-blue-500/30',
   },
 };
 
-const ORDER: Dot[] = ["red", "green", "blue"];
+const ORDER: Dot[] = ['red', 'green', 'blue'];
 const RACE_MS = 8_000;
 
 function pickWinner(): Dot {
@@ -54,8 +54,7 @@ function progressFor(dot: Dot, elapsed: number, winner: Dot): number {
   const t = Math.min(elapsed / RACE_MS, 1);
   const idx = ORDER.indexOf(dot);
   const wave =
-    Math.sin(t * Math.PI * 4.8 + idx * 1.7) * 7 +
-    Math.sin(t * Math.PI * 9.2 + idx * 0.9) * 3.5;
+    Math.sin(t * Math.PI * 4.8 + idx * 1.7) * 7 + Math.sin(t * Math.PI * 9.2 + idx * 0.9) * 3.5;
   const earlyLaneBias = [2.5, 8, 4][idx] * (1 - t);
   const fadeOthers = dot === winner ? 0 : Math.max(0, t - 0.78) * 18;
   const base = t * 86;
@@ -76,17 +75,14 @@ function progressFor(dot: Dot, elapsed: number, winner: Dot): number {
     Math.sin(SPRINT_START * Math.PI * 4.8 + idx * 1.7) * 7 +
     Math.sin(SPRINT_START * Math.PI * 9.2 + idx * 0.9) * 3.5;
   const sprintBias = [2.5, 8, 4][idx] * (1 - SPRINT_START);
-  const posAtSprint = Math.max(
-    3,
-    Math.min(84, sprintBase + sprintWave + sprintBias),
-  );
+  const posAtSprint = Math.max(3, Math.min(84, sprintBase + sprintWave + sprintBias));
   const kt = (t - SPRINT_START) / (1 - SPRINT_START);
   const smooth = kt * kt * (3 - 2 * kt); // smoothstep
   return posAtSprint + smooth * (100 - posAtSprint);
 }
 
 export default function DotRaces() {
-  const [phase, setPhase] = useState<Phase>("pick");
+  const [phase, setPhase] = useState<Phase>('pick');
   const [pick, setPick] = useState<Dot | null>(null);
   const [winner, setWinner] = useState<Dot | null>(null);
   const [progress, setProgress] = useState<Record<Dot, number>>({
@@ -99,33 +95,33 @@ export default function DotRaces() {
   const pickRef = useRef<Dot | null>(null);
 
   function lockIn(chosen: Dot) {
-    if (phase !== "pick") return;
+    if (phase !== 'pick') return;
     const selectedWinner = pickWinner();
     winnerRef.current = selectedWinner;
     pickRef.current = chosen;
     setWinner(selectedWinner);
     setPick(chosen);
     setProgress({ red: 4, green: 4, blue: 4 });
-    setPhase("locked");
+    setPhase('locked');
   }
 
   useEffect(() => {
-    if (phase !== "locked") return;
+    if (phase !== 'locked') return;
 
     const t = setTimeout(() => {
       setCountdown(3);
-      setPhase("countdown");
+      setPhase('countdown');
     }, 2000);
 
     return () => clearTimeout(t);
   }, [phase]);
 
   useEffect(() => {
-    if (phase !== "countdown") return;
+    if (phase !== 'countdown') return;
 
     const t1 = setTimeout(() => setCountdown(2), 1000);
     const t2 = setTimeout(() => setCountdown(1), 2000);
-    const t3 = setTimeout(() => setPhase("racing"), 3000);
+    const t3 = setTimeout(() => setPhase('racing'), 3000);
 
     return () => {
       clearTimeout(t1);
@@ -135,7 +131,7 @@ export default function DotRaces() {
   }, [phase]);
 
   useEffect(() => {
-    if (phase !== "racing" || !winnerRef.current) return;
+    if (phase !== 'racing' || !winnerRef.current) return;
     const started = Date.now();
     let frame = 0;
 
@@ -145,23 +141,16 @@ export default function DotRaces() {
       if (!raceWinner) return;
 
       setProgress({
-        red: progressFor("red", elapsed, raceWinner),
-        green: progressFor("green", elapsed, raceWinner),
-        blue: progressFor("blue", elapsed, raceWinner),
+        red: progressFor('red', elapsed, raceWinner),
+        green: progressFor('green', elapsed, raceWinner),
+        blue: progressFor('blue', elapsed, raceWinner),
       });
 
       if (elapsed >= RACE_MS) {
-        setPhase("result");
+        setPhase('result');
 
         if (raceWinner === pickRef.current) {
-          const colors = [
-            "#ef4444",
-            "#22c55e",
-            "#3b82f6",
-            "#00b2a9",
-            "#e8338a",
-            "#f58220",
-          ];
+          const colors = ['#ef4444', '#22c55e', '#3b82f6', '#00b2a9', '#e8338a', '#f58220'];
           confetti({
             particleCount: 90,
             spread: 75,
@@ -201,7 +190,7 @@ export default function DotRaces() {
   }, [phase]);
 
   function reset() {
-    setPhase("pick");
+    setPhase('pick');
     setPick(null);
     setWinner(null);
     setCountdown(3);
@@ -210,7 +199,7 @@ export default function DotRaces() {
     pickRef.current = null;
   }
 
-  const correct = phase === "result" && winner === pick;
+  const correct = phase === 'result' && winner === pick;
 
   return (
     <section className="surface-panel p-4 sm:p-6">
@@ -219,21 +208,19 @@ export default function DotRaces() {
           <p className="text-[9px] font-black text-ui-muted uppercase tracking-widest leading-none">
             Fan Zone
           </p>
-          <h2 className="mt-1 text-base font-black text-white leading-snug">
-            Valero Dot Race
-          </h2>
+          <h2 className="mt-1 text-base font-black text-white leading-snug">Valero Dot Race</h2>
           <p className="mt-1 text-xs text-ui-muted">
             Pick a dot before the in-arena sprint starts.
           </p>
         </div>
-        {phase === "result" ? (
+        {phase === 'result' ? (
           <button
             onClick={reset}
             className="rounded-lg border border-zinc-700 px-2.5 py-1.5 text-xs font-bold text-ui-muted transition hover:border-zinc-500 hover:text-white"
           >
             Race again
           </button>
-        ) : phase === "pick" ? (
+        ) : phase === 'pick' ? (
           <div className="rounded-full border border-zinc-700/70 px-2.5 py-1 text-right text-[9px] font-black uppercase tracking-widest text-ui-muted">
             Pick one
           </div>
@@ -249,12 +236,10 @@ export default function DotRaces() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`h-3 w-3 rounded-full ${DOTS[dot].bg} ${
-                      phase === "racing" ? "animate-pulse" : ""
+                      phase === 'racing' ? 'animate-pulse' : ''
                     }`}
                   />
-                  <span className="text-xs font-black text-white">
-                    {DOTS[dot].label}
-                  </span>
+                  <span className="text-xs font-black text-white">{DOTS[dot].label}</span>
                   {selected && (
                     <span className="rounded-full border border-fiesta-teal/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-fiesta-teal">
                       Your pick
@@ -262,7 +247,7 @@ export default function DotRaces() {
                   )}
                 </div>
                 <span className="text-[10px] font-bold tabular-nums text-ui-muted">
-                  {phase === "pick" ? "Ready" : `${Math.round(progress[dot])}%`}
+                  {phase === 'pick' ? 'Ready' : `${Math.round(progress[dot])}%`}
                 </span>
               </div>
               <div className="relative h-10 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950 shadow-inner sm:h-9">
@@ -277,8 +262,8 @@ export default function DotRaces() {
                   className="absolute left-0 top-0 h-full w-full rounded-full opacity-20 will-change-transform"
                   style={{
                     transform: `scaleX(${progress[dot] / 100})`,
-                    transformOrigin: "left",
-                    transition: "transform 100ms linear",
+                    transformOrigin: 'left',
+                    transition: 'transform 100ms linear',
                     background: DOTS[dot].fill,
                   }}
                 />
@@ -287,7 +272,7 @@ export default function DotRaces() {
                     className="absolute inset-y-0 left-0"
                     style={{
                       width: `${progress[dot]}%`,
-                      transition: "width 100ms linear",
+                      transition: 'width 100ms linear',
                     }}
                   >
                     <div
@@ -306,7 +291,7 @@ export default function DotRaces() {
         })}
       </div>
 
-      {phase === "pick" && (
+      {phase === 'pick' && (
         <div className="mt-5 grid grid-cols-3 gap-2">
           {ORDER.map((dot) => (
             <button
@@ -314,16 +299,14 @@ export default function DotRaces() {
               onClick={() => lockIn(dot)}
               className={`rounded-xl border bg-zinc-950/50 px-2 py-3 text-xs font-black text-white transition hover:bg-zinc-800 focus:outline-none focus:ring-2 ${DOTS[dot].border} ${DOTS[dot].ring}`}
             >
-              <span
-                className={`mx-auto mb-1 block h-3 w-3 rounded-full ${DOTS[dot].bg}`}
-              />
+              <span className={`mx-auto mb-1 block h-3 w-3 rounded-full ${DOTS[dot].bg}`} />
               <span className={DOTS[dot].text}>{DOTS[dot].label}</span>
             </button>
           ))}
         </div>
       )}
 
-      {phase === "locked" && pick && (
+      {phase === 'locked' && pick && (
         <div className="mt-5 rounded-xl border border-fiesta-teal/30 bg-fiesta-teal/5 px-3 py-3 text-center">
           <p className="text-xs font-black text-fiesta-teal uppercase tracking-widest">
             You&rsquo;re locked in.
@@ -334,7 +317,7 @@ export default function DotRaces() {
         </div>
       )}
 
-      {phase === "countdown" && (
+      {phase === 'countdown' && (
         <div className="mt-5 flex flex-col items-center gap-1">
           <p className="text-[9px] font-black uppercase tracking-widest text-ui-muted">
             Starting in
@@ -342,28 +325,23 @@ export default function DotRaces() {
           <span
             key={countdown}
             className="text-5xl font-black text-white"
-            style={{ animation: "pop 0.25s ease-out" }}
+            style={{ animation: 'pop 0.25s ease-out' }}
           >
             {countdown}
           </span>
         </div>
       )}
 
-      {phase === "racing" && pick && (
+      {phase === 'racing' && pick && (
         <div className="mt-5 rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-center text-xs font-bold text-ui-muted">
-          Your pick:{" "}
-          <span className={`font-black ${DOTS[pick].text}`}>
-            {DOTS[pick].label}
-          </span>
+          Your pick: <span className={`font-black ${DOTS[pick].text}`}>{DOTS[pick].label}</span>
         </div>
       )}
 
-      {phase === "result" && winner && pick && (
+      {phase === 'result' && winner && pick && (
         <div
           className={`mt-5 rounded-xl border p-3 ${
-            correct
-              ? "border-emerald-800/50 bg-emerald-950/30"
-              : "border-zinc-800 bg-zinc-950/50"
+            correct ? 'border-emerald-800/50 bg-emerald-950/30' : 'border-zinc-800 bg-zinc-950/50'
           }`}
         >
           <div className="flex items-center justify-between gap-3">
@@ -373,7 +351,7 @@ export default function DotRaces() {
               </div>
               <p className="mt-1 text-xs text-ui-muted">
                 {correct
-                  ? "Good pick. That one would hit on the big board."
+                  ? 'Good pick. That one would hit on the big board.'
                   : `${DOTS[pick].label} had a run, but ${DOTS[winner].label} closed it out.`}
               </p>
               {correct && (

@@ -1,6 +1,6 @@
-import type { GameDisplay, NBAPlayer, NBAPlayerStats } from "@/lib/types";
-import { SPURS_ALIAS } from "@/lib/constants";
-import PlayerAvatar from "@/components/PlayerAvatar";
+import type { GameDisplay, NBAPlayer, NBAPlayerStats } from '@/lib/types';
+import { SPURS_ALIAS } from '@/lib/constants';
+import PlayerAvatar from '@/components/PlayerAvatar';
 
 type Props = {
   game: GameDisplay;
@@ -10,42 +10,28 @@ type Props = {
   awayStats?: NBAPlayerStats[];
 };
 
-function isSpurs(team: GameDisplay["homeTeam"]): boolean {
+function isSpurs(team: GameDisplay['homeTeam']): boolean {
   return team.alias === SPURS_ALIAS;
 }
 
-function sectionTitle(status: GameDisplay["status"]): string {
-  if (status === "final") return "Spurs Standouts";
-  if (status === "live") return "Spurs Live Watch";
-  return "Spurs Players to Watch";
+function sectionTitle(status: GameDisplay['status']): string {
+  if (status === 'final') return 'Spurs Standouts';
+  if (status === 'live') return 'Spurs Live Watch';
+  return 'Spurs Players to Watch';
 }
 
-function findStats(
-  stats: NBAPlayerStats[],
-  player: NBAPlayer,
-): NBAPlayerStats | undefined {
+function findStats(stats: NBAPlayerStats[], player: NBAPlayer): NBAPlayerStats | undefined {
   const full = `${player.first_name} ${player.last_name}`.toLowerCase();
-  return stats.find(
-    (s) =>
-      `${s.player.first_name} ${s.player.last_name}`.toLowerCase() === full,
-  );
+  return stats.find((s) => `${s.player.first_name} ${s.player.last_name}`.toLowerCase() === full);
 }
 
 function statScore(stats: NBAPlayerStats): number {
   return (
-    stats.pts +
-    stats.reb * 1.2 +
-    stats.ast * 1.5 +
-    stats.stl * 2 +
-    stats.blk * 2 -
-    stats.turnover
+    stats.pts + stats.reb * 1.2 + stats.ast * 1.5 + stats.stl * 2 + stats.blk * 2 - stats.turnover
   );
 }
 
-function spursWatchPlayers(
-  players: NBAPlayer[],
-  stats: NBAPlayerStats[],
-): NBAPlayer[] {
+function spursWatchPlayers(players: NBAPlayer[], stats: NBAPlayerStats[]): NBAPlayer[] {
   if (stats.length > 0) return [];
   return [...players]
     .sort((a, b) => {
@@ -60,12 +46,8 @@ function spursWatchPlayers(
 function StatPill({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-lg border border-zinc-700/70 bg-zinc-950/40 px-2.5 py-2 text-center">
-      <div className="text-base font-black text-white tabular-nums">
-        {value}
-      </div>
-      <div className="text-[8px] font-black uppercase tracking-widest text-ui-muted">
-        {label}
-      </div>
+      <div className="text-base font-black text-white tabular-nums">{value}</div>
+      <div className="text-[8px] font-black uppercase tracking-widest text-ui-muted">{label}</div>
     </div>
   );
 }
@@ -85,16 +67,16 @@ function StandoutCard({ stats }: { stats: NBAPlayerStats }) {
             {stats.player.first_name} {stats.player.last_name}
           </div>
           <div className="text-[10px] font-semibold uppercase tracking-widest text-ui-muted">
-            {stats.player.position || "Spurs"}
+            {stats.player.position || 'Spurs'}
           </div>
         </div>
         {stats.plus_minus !== null && (
           <div
             className={`text-sm font-black tabular-nums ${
-              stats.plus_minus >= 0 ? "text-emerald-400" : "text-ui-muted"
+              stats.plus_minus >= 0 ? 'text-emerald-400' : 'text-ui-muted'
             }`}
           >
-            {stats.plus_minus >= 0 ? "+" : ""}
+            {stats.plus_minus >= 0 ? '+' : ''}
             {stats.plus_minus}
           </div>
         )}
@@ -114,13 +96,7 @@ function StandoutCard({ stats }: { stats: NBAPlayerStats }) {
   );
 }
 
-function WatchCard({
-  player,
-  stats,
-}: {
-  player: NBAPlayer;
-  stats?: NBAPlayerStats;
-}) {
+function WatchCard({ player, stats }: { player: NBAPlayer; stats?: NBAPlayerStats }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-800/45 p-3">
       <PlayerAvatar
@@ -175,10 +151,7 @@ export default function PlayersToWatch({
       {standouts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {standouts.map((stats) => (
-            <StandoutCard
-              key={stats.player.srId ?? stats.player.id}
-              stats={stats}
-            />
+            <StandoutCard key={stats.player.srId ?? stats.player.id} stats={stats} />
           ))}
         </div>
       ) : watchPlayers.length > 0 ? (
