@@ -203,8 +203,8 @@ After deployment, update the Live demo link at the top of this README.
 - No persistent user preferences or favorites are included, but I would've liked to include that.
 
 ## Tradeoffs
-- SportRadar provides game titles such as “Game 1” but does not provide playoff round context. Playoff round labels are intentionally hardcoded for this assessment. Given the scope and goals of the exercise, I prioritized architecture, testing, deployment, and UI/UX polish over building a more generalized playoff-stage derivation system.
 - The application uses Next.js caching primitives rather than introducing a more complex external caching layer. This works well for a single deployment target, but if the application were scaled horizontally across multiple instances, I would likely introduce a shared caching layer (e.g., Redis) so instances could share cached data and avoid redundant cache warming.
+- SportRadar provides game titles such as “Game 1” but does not provide playoff round context. Playoff round labels are intentionally hardcoded for this assessment. Given the scope and goals of the exercise, I prioritized architecture, testing, deployment, and UI/UX polish over building a more generalized playoff-stage derivation system.
 
 ## Assumptions
 - The application is written for Spurs fans, so presentation is intentionally Spurs-centric.
