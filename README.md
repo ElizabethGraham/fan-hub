@@ -168,6 +168,7 @@ lib/
 - Team logos, player images, and product images include alt text.
 - Homepage and game pages define metadata for title, description, Open Graph, and Twitter cards.
 - Text contrast and sizing are tuned for readability on the dark theme.
+- W/L dots in TeamComparison are green/red but also show W/L letters
 
 ## Testing
 
