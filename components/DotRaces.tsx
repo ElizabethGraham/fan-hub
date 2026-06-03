@@ -231,24 +231,30 @@ export default function DotRaces() {
                   End
                 </div>
                 <div
-                  className="absolute left-0 top-0 h-full rounded-full opacity-20 transition-[width] duration-100 ease-linear will-change-[width]"
+                  className="absolute left-0 top-0 h-full w-full rounded-full opacity-20 will-change-transform"
                   style={{
-                    width: `${progress[dot]}%`,
+                    transform: `scaleX(${progress[dot] / 100})`,
+                    transformOrigin: "left",
+                    transition: "transform 100ms linear",
                     background: DOTS[dot].fill,
                   }}
                 />
                 <div className="absolute inset-y-0 left-3 right-8 sm:left-3 sm:right-7">
                   <div
-                    className={`absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-zinc-950 shadow-lg ring-4 will-change-[left] ${DOTS[dot].border} ${DOTS[dot].ring}`}
+                    className="absolute inset-y-0 left-0"
                     style={{
-                      left: `${progress[dot]}%`,
-                      transition: "left 100ms linear",
+                      width: `${progress[dot]}%`,
+                      transition: "width 100ms linear",
                     }}
                   >
                     <div
-                      className="absolute inset-1 rounded-full"
-                      style={{ background: DOTS[dot].fill }}
-                    />
+                      className={`absolute top-1/2 right-0 h-6 w-6 translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-zinc-950 shadow-lg ring-4 ${DOTS[dot].border} ${DOTS[dot].ring}`}
+                    >
+                      <div
+                        className="absolute inset-1 rounded-full"
+                        style={{ background: DOTS[dot].fill }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
