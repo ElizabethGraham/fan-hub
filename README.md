@@ -202,6 +202,16 @@ After deployment, update the Live demo link at the top of this README.
 - Live-game freshness is conservative for the assessment. A production game center should lower cache times during active games.
 - No persistent user preferences or favorites are included, but I would've liked to include that.
 
+## Tradeoffs
+- SportRadar provides game titles such as “Game 1” but does not provide playoff round context. Playoff round labels are intentionally hardcoded for this assessment. Given the scope and goals of the exercise, I prioritized architecture, testing, deployment, and UI/UX polish over building a more generalized playoff-stage derivation system.
+- The application uses Next.js caching primitives rather than introducing a more complex external caching layer. This works well for a single deployment target, but if the application were scaled horizontally across multiple instances, I would likely introduce a shared caching layer (e.g., Redis) so instances could share cached data and avoid redundant cache warming.
+
+## Assumptions
+- The application is written for Spurs fans, so presentation is intentionally Spurs-centric.
+- Opponent information is presented as context, but the UI avoids celebrating opposing teams.
+- Reducing unnecessary API traffic is prioritized over minute-by-minute updates for non-live content.
+
+
 ## AI-Assisted Development
 
 AI-assisted tools were used as a sounding board for technical discussions, alternative implementations, and code review. Suggestions were evaluated, modified, and tested before being incorporated into the project. For example, I used a combination of SportRadar documentation, Postman collections, and AI-assisted analysis to understand API response structures and evaluate integration approaches more quickly. All architecture, implementation, and debugging decisions were made manually.
