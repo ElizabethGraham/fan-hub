@@ -200,6 +200,7 @@ After deployment, update the Live demo link at the top of this README.
 - Player headshots use NBA CDN URLs from Sportradar player reference IDs and gracefully fall back to initials when a CDN image is unavailable.
 - Playoff round labels are intentionally hardcoded for the assessment dataset because SportRadar provides game numbers (e.g. "Game 7") but does not expose the corresponding playoff round.
 - Live-game freshness is conservative for the assessment. A production game center should lower cache times during active games.
+- Per quarter stats were not available in the free tier of the SR API.
 - No persistent user preferences or favorites are included, but I would've liked to include that.
 
 ## Tradeoffs
