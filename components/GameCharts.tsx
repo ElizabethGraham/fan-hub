@@ -421,7 +421,7 @@ export default function GameCharts({
             </div>
             {selectedMetricDef && !hasPerQuarterStatData && (
               <p className="text-[10px] text-ui-muted mb-2">
-                Quarter-level {selectedMetricDef.label} not available; showing points.
+                Quarter-level {selectedMetricDef.label} not available on free tier; showing points.
               </p>
             )}
             <QuarterChart
