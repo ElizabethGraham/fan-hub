@@ -160,7 +160,6 @@ function QuarterChart({
               }
             }}
           >
-
             {/* Home bar */}
             <rect
               x={groupX}
@@ -328,7 +327,7 @@ export default function GameCharts({
   const [animated, setAnimated] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<MetricKey | null>(null);
   const [selectedPeriodIndex, setSelectedPeriodIndex] = useState<number | null>(
-    0,
+    null,
   );
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 80);
