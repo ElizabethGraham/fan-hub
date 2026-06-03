@@ -94,6 +94,34 @@ export default function DotRaces() {
   const [countdown, setCountdown] = useState(3);
   const winnerRef = useRef<Dot | null>(null);
   const pickRef = useRef<Dot | null>(null);
+  const fillRefs = useRef<Record<Dot, HTMLDivElement | null>>({
+    red: null,
+    green: null,
+    blue: null,
+  });
+  const racerRefs = useRef<Record<Dot, HTMLDivElement | null>>({
+    red: null,
+    green: null,
+    blue: null,
+  });
+  const percentRefs = useRef<Record<Dot, HTMLSpanElement | null>>({
+    red: null,
+    green: null,
+    blue: null,
+  });
+
+  function paintRaceProgress(next: Record<Dot, number>) {
+    for (const dot of ORDER) {
+      const value = next[dot];
+      const fill = fillRefs.current[dot];
+      const racer = racerRefs.current[dot];
+      const percent = percentRefs.current[dot];
+
+      if (fill) fill.style.transform = `scale3d(${value / 100}, 1, 1)`;
+      if (racer) racer.style.transform = `translate3d(${value}%, 0, 0)`;
+      if (percent) percent.textContent = `${Math.round(value)}%`;
+    }
+  }
 
   function lockIn(chosen: Dot) {
     if (phase !== 'pick') return;
@@ -102,7 +130,9 @@ export default function DotRaces() {
     pickRef.current = chosen;
     setWinner(selectedWinner);
     setPick(chosen);
-    setProgress({ red: 4, green: 4, blue: 4 });
+    const initialProgress = { red: 4, green: 4, blue: 4 };
+    setProgress(initialProgress);
+    paintRaceProgress(initialProgress);
     setPhase('locked');
   }
 
@@ -133,21 +163,23 @@ export default function DotRaces() {
 
   useEffect(() => {
     if (phase !== 'racing' || !winnerRef.current) return;
-    const started = Date.now();
+    const started = performance.now();
     let frame = 0;
 
-    function updateRace() {
-      const elapsed = Date.now() - started;
+    function updateRace(now: number) {
+      const elapsed = now - started;
       const raceWinner = winnerRef.current;
       if (!raceWinner) return;
 
-      setProgress({
+      const nextProgress = {
         red: progressFor('red', elapsed, raceWinner),
         green: progressFor('green', elapsed, raceWinner),
         blue: progressFor('blue', elapsed, raceWinner),
-      });
+      };
+      paintRaceProgress(nextProgress);
 
       if (elapsed >= RACE_MS) {
+        setProgress(nextProgress);
         setPhase('result');
 
         if (raceWinner === pickRef.current) {
@@ -195,7 +227,9 @@ export default function DotRaces() {
     setPick(null);
     setWinner(null);
     setCountdown(3);
-    setProgress({ red: 4, green: 4, blue: 4 });
+    const initialProgress = { red: 4, green: 4, blue: 4 };
+    setProgress(initialProgress);
+    paintRaceProgress(initialProgress);
     winnerRef.current = null;
     pickRef.current = null;
   }
@@ -248,7 +282,13 @@ export default function DotRaces() {
                   )}
                 </div>
                 <span className="text-[10px] font-bold tabular-nums text-ui-muted">
-                  {phase === 'pick' ? 'Ready' : `${Math.round(progress[dot])}%`}
+                  {phase === 'pick' ? (
+                    'Ready'
+                  ) : (
+                    <span ref={(element) => { percentRefs.current[dot] = element; }}>
+                      {`${Math.round(progress[dot])}%`}
+                    </span>
+                  )}
                 </span>
               </div>
               <div className="relative h-10 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950 shadow-inner sm:h-9">
@@ -260,24 +300,26 @@ export default function DotRaces() {
                   End
                 </div>
                 <div
+                  ref={(element) => { fillRefs.current[dot] = element; }}
+                  data-testid={`dot-race-fill-${dot}`}
                   className="absolute left-0 top-0 h-full w-full rounded-full opacity-20 will-change-transform"
                   style={{
-                    transform: `scaleX(${progress[dot] / 100})`,
+                    transform: `scale3d(${progress[dot] / 100}, 1, 1)`,
                     transformOrigin: 'left',
-                    transition: 'transform 100ms linear',
                     background: DOTS[dot].fill,
                   }}
                 />
                 <div className="absolute inset-y-0 left-3 right-8 sm:left-3 sm:right-7">
                   <div
-                    className="absolute inset-y-0 left-0"
+                    ref={(element) => { racerRefs.current[dot] = element; }}
+                    data-testid={`dot-race-racer-${dot}`}
+                    className="absolute inset-y-0 left-0 w-full will-change-transform"
                     style={{
-                      width: `${progress[dot]}%`,
-                      transition: 'width 100ms linear',
+                      transform: `translate3d(${progress[dot]}%, 0, 0)`,
                     }}
                   >
                     <div
-                      className={`absolute top-1/2 right-0 h-6 w-6 translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-zinc-950 shadow-lg ring-4 ${DOTS[dot].border} ${DOTS[dot].ring}`}
+                      className={`absolute top-1/2 left-0 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-zinc-950 shadow-lg ring-4 ${DOTS[dot].border} ${DOTS[dot].ring}`}
                     >
                       <div
                         className="absolute inset-1 rounded-full"
