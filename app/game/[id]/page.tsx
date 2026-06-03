@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import DotRaces from "@/components/DotRaces";
 import GameCharts from "@/components/GameCharts";
 import JerseyShop from "@/components/JerseyShop";
 import KeyMatchup from "@/components/KeyMatchup";
@@ -10,6 +11,7 @@ import {
   getGameDetailMetadata,
   getGameDetailPageData,
 } from "@/lib/gameDetailData";
+import { dotRaces } from "@/lib/flags";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -25,6 +27,7 @@ export default async function GameDetailPage({ params }: Props) {
   const { id } = await params;
   const data = await getGameDetailPageData(id);
   if (!data) return notFound();
+  const showDotRaces = data.showDotRace && (await dotRaces());
 
   return (
     <Layout>
@@ -61,6 +64,8 @@ export default async function GameDetailPage({ params }: Props) {
         />
 
         <JerseyShop />
+
+        {showDotRaces && <DotRaces />}
       </div>
     </Layout>
   );

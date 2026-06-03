@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { SPURS_ALIAS } from "@/lib/constants";
-import { isPregameGame } from "@/lib/gameDisplay";
+import {
+  CENTRAL_TIMEZONE,
+  DATE_KEY_LOCALE,
+  SPURS_ALIAS,
+} from "@/lib/constants";
+import { isPossibleGame, isPregameGame } from "@/lib/gameDisplay";
 import { getNBASeasonYear } from "@/lib/nba";
 import { getSeasonSchedule } from "@/lib/schedule";
 import {
@@ -28,6 +32,7 @@ type WLResult = "W" | "L";
 
 export type GameDetailPageData = {
   game: GameDisplay;
+  showDotRace: boolean;
   homeWL: WLResult[];
   awayWL: WLResult[];
   homePlayers: NBAPlayer[];
@@ -98,6 +103,52 @@ function applyLastGameStarters(
       ? (rankBySrId.get(player.srId) ?? player.depthChartRank)
       : player.depthChartRank,
   }));
+}
+
+function spursGames(games: GameDisplay[]): GameDisplay[] {
+  return games.filter(
+    (game) =>
+      game.homeTeam.alias === SPURS_ALIAS || game.awayTeam.alias === SPURS_ALIAS,
+  );
+}
+
+function byDateAsc(a: GameDisplay, b: GameDisplay): number {
+  return a.date.localeCompare(b.date);
+}
+
+function byDateDesc(a: GameDisplay, b: GameDisplay): number {
+  return b.date.localeCompare(a.date);
+}
+
+function featuredGame(games: GameDisplay[]): GameDisplay | null {
+  const today = new Intl.DateTimeFormat(DATE_KEY_LOCALE, {
+    timeZone: CENTRAL_TIMEZONE,
+  }).format(new Date());
+  const live = games.filter((item) => item.status === "live").sort(byDateAsc);
+  const confirmedUpcoming = games
+    .filter(
+      (item) =>
+        item.status === "scheduled" && item.date >= today && !isPossibleGame(item),
+    )
+    .sort(byDateAsc);
+  const recent = games.filter((item) => item.status === "final").sort(byDateDesc);
+  const possibleUpcoming = games
+    .filter((item) => item.date >= today && isPossibleGame(item))
+    .sort(byDateAsc);
+
+  return (
+    live[0] ??
+    confirmedUpcoming[0] ??
+    recent[0] ??
+    possibleUpcoming[0] ??
+    games[0] ??
+    null
+  );
+}
+
+function shouldShowDotRace(game: GameDisplay, allGames: GameDisplay[]): boolean {
+  if (game.status === "live") return true;
+  return featuredGame(spursGames(allGames))?.id === game.id;
 }
 
 async function lastStarterStatsForTeam(
@@ -246,6 +297,7 @@ export async function getGameDetailPageData(
 
   return {
     game,
+    showDotRace: shouldShowDotRace(game, allGames),
     homeWL,
     awayWL,
     homePlayers,
