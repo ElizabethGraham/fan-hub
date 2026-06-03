@@ -222,29 +222,34 @@ export default function DotRaces() {
                   {phase === "pick" ? "Ready" : `${Math.round(progress[dot])}%`}
                 </span>
               </div>
-              <div className="relative h-9 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950 shadow-inner">
+              <div className="relative h-10 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950 shadow-inner sm:h-9">
                 <div className="absolute inset-y-0 left-1/4 w-px bg-white/[0.04]" />
                 <div className="absolute inset-y-0 left-1/2 w-px bg-white/[0.04]" />
                 <div className="absolute inset-y-0 left-3/4 w-px bg-white/[0.04]" />
-                <div className="absolute bottom-1 top-1 right-5 w-px bg-white/30" />
+                <div className="absolute bottom-1 top-1 right-6 w-px bg-white/30 sm:right-5" />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-black uppercase tracking-widest text-ui-faint">
                   End
                 </div>
                 <div
-                  className="absolute left-0 top-0 h-full rounded-full opacity-20 transition-[width] duration-150 ease-linear"
+                  className="absolute left-0 top-0 h-full rounded-full opacity-20 transition-[width] duration-100 ease-linear will-change-[width]"
                   style={{
                     width: `${progress[dot]}%`,
                     background: DOTS[dot].fill,
                   }}
                 />
-                <div
-                  className={`absolute top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border-2 bg-zinc-950 shadow-lg ring-4 transition-[left] duration-150 ease-linear ${DOTS[dot].border} ${DOTS[dot].ring}`}
-                  style={{ left: `calc(${progress[dot]}% - 12px)` }}
-                >
+                <div className="absolute inset-y-0 left-3 right-8 sm:left-3 sm:right-7">
                   <div
-                    className="absolute inset-1 rounded-full"
-                    style={{ background: DOTS[dot].fill }}
-                  />
+                    className={`absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-zinc-950 shadow-lg ring-4 will-change-[left] ${DOTS[dot].border} ${DOTS[dot].ring}`}
+                    style={{
+                      left: `${progress[dot]}%`,
+                      transition: "left 100ms linear",
+                    }}
+                  >
+                    <div
+                      className="absolute inset-1 rounded-full"
+                      style={{ background: DOTS[dot].fill }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

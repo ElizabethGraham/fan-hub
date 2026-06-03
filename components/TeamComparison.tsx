@@ -44,10 +44,12 @@ function WLDots({ record }: { record: WLResult[] }) {
 function TeamColumn({
   team,
   score,
+  scoreClassName = "text-foreground",
   wl,
 }: {
   team: TeamDisplay;
   score: number | null;
+  scoreClassName?: string;
   wl: WLResult[];
 }) {
   const fullName = [team.market, team.name].filter(Boolean).join(" ");
@@ -69,7 +71,9 @@ function TeamColumn({
         </div>
       </div>
       {score !== null && (
-        <div className="text-2xl sm:text-3xl font-black text-fiesta-teal tabular-nums">
+        <div
+          className={`text-2xl sm:text-3xl font-black tabular-nums ${scoreClassName}`}
+        >
           {score}
         </div>
       )}
@@ -80,6 +84,10 @@ function TeamColumn({
 
 export default function TeamComparison({ game, homeWL, awayWL }: Props) {
   const showScore = !isPregameGame(game.status);
+  const homeScoreClassName =
+    game.homeTeamScore > game.awayTeamScore ? "text-white" : "text-ui-muted";
+  const awayScoreClassName =
+    game.awayTeamScore > game.homeTeamScore ? "text-white" : "text-ui-muted";
 
   return (
     <section className="surface-panel p-4 sm:p-6">
@@ -90,11 +98,13 @@ export default function TeamComparison({ game, homeWL, awayWL }: Props) {
         <TeamColumn
           team={game.homeTeam}
           score={showScore ? game.homeTeamScore : null}
+          scoreClassName={homeScoreClassName}
           wl={homeWL}
         />
         <TeamColumn
           team={game.awayTeam}
           score={showScore ? game.awayTeamScore : null}
+          scoreClassName={awayScoreClassName}
           wl={awayWL}
         />
       </div>

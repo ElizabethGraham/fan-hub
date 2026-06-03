@@ -189,7 +189,7 @@ function Metric({
     <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-3">
       <div
         className={`text-xl font-black tabular-nums ${
-          tone === "accent" ? "text-fiesta-teal" : "text-white"
+          tone === "accent" ? "text-fiesta-orange" : "text-white"
         }`}
       >
         {value}
@@ -217,7 +217,7 @@ export default function PlayoffSnapshot({
     <section className="surface-panel p-4 sm:p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xs font-black text-fiesta-teal uppercase tracking-widest">
+          <h2 className="text-xs font-black text-fiesta-pink uppercase tracking-widest">
             Playoff Pulse
           </h2>
           <p className="mt-1 text-sm font-medium text-ui-muted">
@@ -235,13 +235,8 @@ export default function PlayoffSnapshot({
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Metric label="PPG" value={fmt(data.avgPoints)} tone="accent" />
+        <Metric label="PPG" value={fmt(data.avgPoints)} tone="default" />
         <Metric label="Allowed ppg" value={fmt(data.avgAllowed)} />
-        {/* <Metric
-          label="Margin"
-          value={`${data.avgMargin >= 0 ? "+" : ""}${fmt(data.avgMargin)}`}
-          tone={data.avgMargin >= 0 ? "accent" : "default"}
-        /> */}
         <Metric label="FG%" value={`${fmt(data.fgPct)}%`} />
         <Metric label="3P%" value={`${fmt(data.fg3Pct)}%`} />
       </div>
@@ -312,7 +307,7 @@ export default function PlayoffSnapshot({
                 key={leader.key}
                 className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2"
               >
-                <span className="text-xs font-black text-fiesta-teal">
+                <span className="text-xs font-black text-white">
                   {index + 1}
                 </span>
                 <div className="min-w-0">
@@ -341,15 +336,25 @@ export default function PlayoffSnapshot({
       <div className="mt-4 grid grid-cols-3 gap-2">
         <Metric
           label={selectedGame ? "FG%" : "FG%"}
-          value={selectedGame ? `${fmt(selectedGame.fgPct)}%` : `${fmt(data.fgPct)}%`}
+          value={
+            selectedGame ? `${fmt(selectedGame.fgPct)}%` : `${fmt(data.fgPct)}%`
+          }
         />
         <Metric
           label={selectedGame ? "REB" : "REB"}
-          value={selectedGame ? String(Math.round(selectedGame.reb)) : fmt(data.rebounds)}
+          value={
+            selectedGame
+              ? String(Math.round(selectedGame.reb))
+              : fmt(data.rebounds)
+          }
         />
         <Metric
           label={selectedGame ? "AST" : "AST"}
-          value={selectedGame ? String(Math.round(selectedGame.ast)) : fmt(data.assists)}
+          value={
+            selectedGame
+              ? String(Math.round(selectedGame.ast))
+              : fmt(data.assists)
+          }
         />
       </div>
     </section>

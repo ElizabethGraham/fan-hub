@@ -134,10 +134,10 @@ export default function GameCard({ game, isClickable = true }: Props) {
     <>
       {label && (
         <div className="mb-3 text-center">
-          <div className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-fiesta-teal">
+          <div className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-white transition group-hover:text-fiesta-orange">
             {label}
           </div>
-          <div className="mx-auto mt-2 h-px w-20 bg-linear-to-r from-transparent via-fiesta-teal/50 to-transparent" />
+          <div className="mx-auto mt-2 h-px w-20 bg-linear-to-r from-transparent via-white/40 to-transparent" />
         </div>
       )}
 
@@ -159,7 +159,7 @@ export default function GameCard({ game, isClickable = true }: Props) {
                   ? "text-white"
                   : awayWon
                     ? "text-ui-muted"
-                    : "text-white group-hover:text-fiesta-teal"
+                    : "text-white"
               }`}
             >
               <span className="sm:hidden">{game.homeTeam.name}</span>
@@ -207,7 +207,7 @@ export default function GameCard({ game, isClickable = true }: Props) {
                   ? "text-white"
                   : homeWon
                     ? "text-ui-muted"
-                    : "text-white group-hover:text-fiesta-teal"
+                    : "text-white"
               }`}
             >
               <span className="sm:hidden">{game.awayTeam.name}</span>

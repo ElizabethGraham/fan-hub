@@ -123,11 +123,9 @@ function gameHeadline(game: GameDisplay): string {
   }
 
   if (game.status === "live") {
-    if (spursScore === opponentScore)
-      return `${spursName} are tied with ${opponentName}`;
     return spursScore > opponentScore
       ? `${spursName} lead by ${spursScore - opponentScore}`
-      : `${spursName} within ${opponentScore - spursScore}`;
+      : `${spursName} trail by ${opponentScore - spursScore}`;
   }
 
   return isSpursHome

@@ -77,7 +77,7 @@ function QuarterChart({
   metricLabel: string;
   isPercent?: boolean;
   animated: boolean;
-  selectedIndex: number;
+  selectedIndex: number | null;
   onSelect: (index: number) => void;
 }) {
   const periodValue = (
@@ -90,21 +90,22 @@ function QuarterChart({
     periodValue(period, "awayStats", period.away),
   ]);
   const maxVal = metric ? Math.max(...allVals, 1) : Math.max(...allVals, 30);
-  const chartH = 100;
-  const barW = 14;
-  const groupGap = 36;
-  const barGap = 3;
-  const leftPad = 32;
+  const chartTop = 12;
+  const chartH = 86;
+  const barW = 10;
+  const groupGap = 30;
+  const barGap = 2;
+  const leftPad = 28;
   const totalW = leftPad + periods.length * groupGap + 8;
 
   return (
     <svg
-      viewBox={`0 0 ${totalW} ${chartH + 32}`}
+      viewBox={`0 0 ${totalW} ${chartTop + chartH + 32}`}
       className="w-full overflow-visible"
     >
       {/* Y-axis lines */}
       {[0, 25, 50, 75, 100].map((pct) => {
-        const y = chartH - (pct / 100) * chartH;
+        const y = chartTop + chartH - (pct / 100) * chartH;
         const val = Math.round((pct / 100) * maxVal);
         return (
           <g key={pct}>
@@ -135,14 +136,20 @@ function QuarterChart({
         const awayVal = periodValue(period, "awayStats", period.away);
         const homeH = animated ? (homeVal / maxVal) * chartH : 0;
         const awayH = animated ? (awayVal / maxVal) * chartH : 0;
+        const homeY = chartTop + chartH - homeH;
+        const awayY = chartTop + chartH - awayH;
 
         const selected = qi === selectedIndex;
+        const dimmed = selectedIndex !== null && !selected;
+        const homeBarColor = dimmed ? "#3f3f46" : HOME_COLOR;
+        const awayBarColor = dimmed ? "#3f3f46" : AWAY_COLOR;
 
         return (
           <g
             key={`${period.label}-${qi}`}
             role="button"
             tabIndex={0}
+            aria-pressed={selected}
             aria-label={`${period.label} ${metricLabel}: ${homeAbbr} ${fmtMetric(homeVal, isPercent)}, ${awayAbbr} ${fmtMetric(awayVal, isPercent)}`}
             className="cursor-pointer outline-none"
             onClick={() => onSelect(qi)}
@@ -153,39 +160,29 @@ function QuarterChart({
               }
             }}
           >
-            {selected && (
-              <rect
-                x={groupX - 4}
-                y="0"
-                width={barW * 2 + barGap + 8}
-                height={chartH + 14}
-                rx="4"
-                fill="#ffffff"
-                opacity="0.06"
-              />
-            )}
+
             {/* Home bar */}
             <rect
               x={groupX}
-              y={chartH - homeH}
+              y={homeY}
               width={barW}
               height={homeH}
               rx="2"
-              fill={HOME_COLOR}
+              fill={homeBarColor}
               opacity="0.85"
               style={{
                 transition:
-                  "height 0.7s cubic-bezier(.25,.46,.45,.94), y 0.7s cubic-bezier(.25,.46,.45,.94)",
+                  "height 0.7s cubic-bezier(.25,.46,.45,.94), y 0.7s cubic-bezier(.25,.46,.45,.94), fill 0.2s ease",
               }}
             />
             {/* Score label */}
             {animated && (
               <text
                 x={groupX + barW / 2}
-                y={chartH - homeH - 3}
+                y={Math.max(chartTop - 3, homeY - 3)}
                 textAnchor="middle"
-                fill={HOME_COLOR}
-                fontSize="6"
+                fill={homeBarColor}
+                fontSize="5"
                 fontWeight="700"
               >
                 {fmtMetric(homeVal, isPercent)}
@@ -195,24 +192,24 @@ function QuarterChart({
             {/* Away bar */}
             <rect
               x={groupX + barW + barGap}
-              y={chartH - awayH}
+              y={awayY}
               width={barW}
               height={awayH}
               rx="2"
-              fill={AWAY_COLOR}
+              fill={awayBarColor}
               opacity="0.85"
               style={{
                 transition:
-                  "height 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, y 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s",
+                  "height 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, y 0.7s cubic-bezier(.25,.46,.45,.94) 0.1s, fill 0.2s ease",
               }}
             />
             {animated && (
               <text
                 x={groupX + barW + barGap + barW / 2}
-                y={chartH - awayH - 3}
+                y={Math.max(chartTop - 3, awayY - 3)}
                 textAnchor="middle"
-                fill={AWAY_COLOR}
-                fontSize="6"
+                fill={awayBarColor}
+                fontSize="5"
                 fontWeight="700"
               >
                 {fmtMetric(awayVal, isPercent)}
@@ -222,7 +219,7 @@ function QuarterChart({
             {/* Quarter label */}
             <text
               x={groupX + barW + barGap / 2}
-              y={chartH + 10}
+              y={chartTop + chartH + 10}
               textAnchor="middle"
               fill="#71717a"
               fontSize="7"
@@ -235,13 +232,13 @@ function QuarterChart({
       })}
 
       {/* Legend */}
-      <g transform={`translate(${leftPad}, ${chartH + 22})`}>
-        <rect width="8" height="5" rx="1" fill={HOME_COLOR} />
-        <text x="11" y="5" fill="#a1a1aa" fontSize="6">
+      <g transform={`translate(${leftPad}, ${chartTop + chartH + 22})`}>
+        <rect width="6" height="4" rx="1" fill={HOME_COLOR} />
+        <text x="8.5" y="4" fill="#a1a1aa" fontSize="5">
           {homeAbbr}
         </text>
-        <rect x="38" width="8" height="5" rx="1" fill={AWAY_COLOR} />
-        <text x="49" y="5" fill="#a1a1aa" fontSize="6">
+        <rect x="30" width="6" height="4" rx="1" fill={AWAY_COLOR} />
+        <text x="38.5" y="4" fill="#a1a1aa" fontSize="5">
           {awayAbbr}
         </text>
       </g>
@@ -284,7 +281,7 @@ function StatBar({
     >
       {/* Home bar (right-aligned) */}
       <div className="flex items-center justify-end gap-1 sm:gap-1.5 min-w-0">
-        <span className="text-[10px] font-bold text-fiesta-teal tabular-nums shrink-0">
+        <span className="min-w-9 text-right text-xs font-black text-fiesta-teal tabular-nums shrink-0">
           {fmtMetric(homeVal, isPercent)}
         </span>
         <div className="h-2 rounded-full overflow-hidden bg-zinc-800 flex-1 flex justify-end">
@@ -314,7 +311,7 @@ function StatBar({
             }}
           />
         </div>
-        <span className="text-[10px] font-bold text-fiesta-pink tabular-nums shrink-0">
+        <span className="min-w-9 text-xs font-black text-fiesta-pink tabular-nums shrink-0">
           {fmtMetric(awayVal, isPercent)}
         </span>
       </div>
@@ -330,7 +327,9 @@ export default function GameCharts({
 }: Props) {
   const [animated, setAnimated] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<MetricKey | null>(null);
-  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState(0);
+  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState<number | null>(
+    0,
+  );
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 80);
     return () => clearTimeout(t);
@@ -370,9 +369,6 @@ export default function GameCharts({
       ? awaySelected < homeSelected
       : awaySelected > homeSelected
     : false;
-  const selectedPeriod =
-    chartData?.periods[selectedPeriodIndex] ?? chartData?.periods[0];
-
   if (!homeS || !awayS) {
     return (
       <div className="surface-panel p-4 sm:p-6">
@@ -398,7 +394,7 @@ export default function GameCharts({
         className={showQuarters ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : ""}
       >
         {/* Team stat comparison */}
-        <div className="space-y-3">
+        <div className={showQuarters ? "space-y-3 sm:pt-20" : "space-y-3"}>
           {/* Team headers */}
           <div className="grid grid-cols-[1fr_auto_1fr] gap-2 mb-4">
             <span className="text-xs font-black text-fiesta-teal text-right">
@@ -476,39 +472,12 @@ export default function GameCharts({
               }
               animated={animated}
               selectedIndex={selectedPeriodIndex}
-              onSelect={setSelectedPeriodIndex}
+              onSelect={(index) =>
+                setSelectedPeriodIndex((current) =>
+                  current === index ? null : index,
+                )
+              }
             />
-            {selectedPeriod && (
-              <div
-                className="mt-3 rounded-xl border border-zinc-800 bg-zinc-950/45 px-3 py-2"
-                aria-live="polite"
-              >
-                <div className="text-[10px] font-black uppercase tracking-widest text-ui-muted">
-                  Selected Quarter
-                </div>
-                <div className="mt-1 flex items-center justify-between gap-3 text-xs font-semibold text-zinc-300">
-                  <span>{selectedPeriod.label}</span>
-                  <span className="tabular-nums text-white">
-                    {game.homeTeam.alias}{" "}
-                    {fmtMetric(
-                      selectedMetricDef
-                        ? (selectedPeriod.homeStats?.[selectedMetricDef.key] ??
-                            selectedPeriod.home)
-                        : selectedPeriod.home,
-                      selectedMetricDef?.isPercent,
-                    )}{" "}
-                    - {game.awayTeam.alias}{" "}
-                    {fmtMetric(
-                      selectedMetricDef
-                        ? (selectedPeriod.awayStats?.[selectedMetricDef.key] ??
-                            selectedPeriod.away)
-                        : selectedPeriod.away,
-                      selectedMetricDef?.isPercent,
-                    )}
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>

@@ -99,7 +99,7 @@ function StandoutCard({ stats }: { stats: NBAPlayerStats }) {
           </div>
         )}
         {stats.player.jersey_number && (
-          <span className="shrink-0 text-sm font-black text-fiesta-teal tabular-nums">
+          <span className="shrink-0 text-sm font-black text-white tabular-nums">
             #{stats.player.jersey_number}
           </span>
         )}
@@ -142,7 +142,7 @@ function WatchCard({
         </div>
       </div>
       {player.jersey_number && (
-        <span className="shrink-0 text-sm font-black text-fiesta-teal tabular-nums">
+        <span className="shrink-0 text-sm font-black text-white tabular-nums">
           #{player.jersey_number}
         </span>
       )}

@@ -169,7 +169,7 @@ function TeamLineup({
                 )}
               </div>
               {player.jerseyNumber && (
-                <span className="shrink-0 text-xs font-black text-fiesta-teal tabular-nums">
+                <span className="shrink-0 text-xs font-black text-white tabular-nums">
                   #{player.jerseyNumber}
                 </span>
               )}
