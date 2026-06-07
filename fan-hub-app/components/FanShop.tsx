@@ -89,11 +89,26 @@ function ProductArt({ item, large = false }: { item: ShopItem; large?: boolean }
 export function FanShopCarousel({ onOpen }: { onOpen: (itemId: string) => void }) {
   const [index, setIndex] = useState(0);
   const item = SHOP_ITEMS[index];
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const advanceRef = useRef<(() => void) | undefined>(undefined);
+
+  advanceRef.current = () => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 160, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: -14, duration: 160, useNativeDriver: true }),
+    ]).start(() => {
+      setIndex((i) => (i + 1) % SHOP_ITEMS.length);
+      slideAnim.setValue(14);
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.spring(slideAnim, { toValue: 0, friction: 9, tension: 120, useNativeDriver: true }),
+      ]).start();
+    });
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((current) => (current + 1) % SHOP_ITEMS.length);
-    }, 3200);
+    const timer = setInterval(() => advanceRef.current?.(), 3200);
     return () => clearInterval(timer);
   }, []);
 
@@ -116,15 +131,15 @@ export function FanShopCarousel({ onOpen }: { onOpen: (itemId: string) => void }
           ))}
         </View>
       </View>
-      <View style={styles.carouselRow}>
+      <Animated.View style={[styles.carouselRow, { opacity: fadeAnim, transform: [{ translateX: slideAnim }] }]}>
         <ProductArt item={item} />
         <View style={styles.carouselText}>
-          <Text style={[styles.itemEyebrow, { color: item.swatch }]}>{item.eyebrow}</Text>
-          <Text style={styles.itemName}>{item.name}</Text>
-          <Text style={shared.body}>{item.copy}</Text>
-          <Text style={styles.tap}>Tap to open Fan Shop</Text>
+          <Text style={[styles.itemEyebrow, { color: item.swatch }]} numberOfLines={1}>{item.eyebrow}</Text>
+          <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
+          <Text style={shared.body} numberOfLines={2}>{item.copy}</Text>
+          <Text style={styles.tap} numberOfLines={1}>Tap to open Fan Shop</Text>
         </View>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 }

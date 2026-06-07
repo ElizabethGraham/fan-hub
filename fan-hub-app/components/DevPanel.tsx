@@ -7,6 +7,7 @@ export type NavDest =
   | 'onboarding-0'
   | 'onboarding-1'
   | 'onboarding-2'
+  | 'auth'
   | 'home'
   | 'news'
   | 'schedule'
@@ -153,6 +154,7 @@ const NAV_ITEMS: { label: string; dest: NavDest; accent?: string }[] = [
   { label: 'Onboard ①', dest: 'onboarding-0', accent: colors.teal },
   { label: 'Onboard ②', dest: 'onboarding-1', accent: colors.orange },
   { label: 'Onboard ③', dest: 'onboarding-2', accent: colors.pink },
+  { label: 'Auth', dest: 'auth' },
   { label: 'Home', dest: 'home' },
   { label: 'News', dest: 'news' },
   { label: 'Schedule', dest: 'schedule' },

@@ -2,21 +2,22 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import DevPanel, { type DotRaceOutcome, type NavDest } from './components/DevPanel';
-import FanShop from './components/FanShop';
 import Layout, { type TabName } from './components/Layout';
-import Onboarding from './components/Onboarding';
-import ProfileScreen from './components/ProfileScreen';
-import SplashScreen from './components/SplashScreen';
 import { getGameDetailPageData, type GameDetailPageData } from './lib/gameDetailData';
 import { getHomePageData, type HomePageData } from './lib/homePageData';
 import { colors, shared } from './lib/theme';
+import AuthScreen from './screens/AuthScreen';
 import GameScreen from './screens/GameScreen';
 import HomeScreen from './screens/HomeScreen';
 import NewsScreen from './screens/NewsScreen';
+import OnboardingScreen from './screens/OnboardingScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
+import ShopScreen from './screens/ShopScreen';
+import SplashScreen from './screens/SplashScreenRevamp';
 import type { GameDisplay } from './lib/types';
 
-type Phase = 'splash' | 'onboarding' | 'main';
+type Phase = 'splash' | 'onboarding' | 'auth' | 'main';
 const SHOW_DEV_TOOLS = __DEV__ || process.env.EXPO_PUBLIC_MOCK_API === '1';
 
 type Route =
@@ -80,19 +81,39 @@ export default function App() {
   }
 
   function handleDevNavigate(dest: NavDest) {
-    if (dest === 'splash') { setSplashDest('main'); setPhase('splash'); return; }
-    if (dest.startsWith('onboarding-')) {
-      setOnboardingStart(Number(dest.split('-')[1]));
-      setPhase('onboarding');
-      return;
+    switch (dest) {
+      case 'splash':
+        setSplashDest('main');
+        setPhase('splash');
+        return;
+      case 'auth':
+        setPhase('auth');
+        return;
+      case 'onboarding-0':
+      case 'onboarding-1':
+      case 'onboarding-2':
+        setOnboardingStart(Number(dest.split('-')[1]));
+        setPhase('onboarding');
+        return;
+      case 'game':
+        setPhase('main');
+        setRoute({ name: 'game', id: 'fixture-live' });
+        return;
+      case 'home':
+      case 'news':
+      case 'schedule':
+      case 'shop':
+      case 'profile':
+        setPhase('main');
+        setRoute(({
+          home: { name: 'home' },
+          news: { name: 'news' },
+          schedule: { name: 'schedule' },
+          shop: { name: 'shop' },
+          profile: { name: 'profile' },
+        } satisfies Record<'home' | 'news' | 'schedule' | 'shop' | 'profile', Route>)[dest]);
+        return;
     }
-    setPhase('main');
-    if (dest === 'game') { setRoute({ name: 'game', id: 'fixture-live' }); return; }
-    if (dest === 'home') { setRoute({ name: 'home' }); return; }
-    if (dest === 'news') { setRoute({ name: 'news' }); return; }
-    if (dest === 'schedule') { setRoute({ name: 'schedule' }); return; }
-    if (dest === 'shop') { setRoute({ name: 'shop' }); return; }
-    if (dest === 'profile') { setRoute({ name: 'profile' }); return; }
   }
 
   // Splash and onboarding render outside Layout
@@ -108,8 +129,16 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.onboardingShell}>
-          <Onboarding onDone={() => setPhase('main')} startPage={onboardingStart} />
+          <OnboardingScreen onDone={() => setPhase('auth')} startPage={onboardingStart} />
         </SafeAreaView>
+      </SafeAreaProvider>
+    );
+  }
+
+  if (phase === 'auth') {
+    return (
+      <SafeAreaProvider>
+        <AuthScreen onDone={() => setPhase('main')} />
       </SafeAreaProvider>
     );
   }
@@ -139,13 +168,13 @@ export default function App() {
 
         {/* Route-specific content */}
         {route.name === 'profile' ? (
-          <ProfileScreen onBack={() => setRoute({ name: 'home' })} />
+          <ProfileScreen onBack={() => setRoute({ name: 'home' })} onLoginPress={() => setPhase('auth')} />
         ) : route.name === 'news' ? (
           <NewsScreen />
         ) : route.name === 'schedule' ? (
           <ScheduleScreen homeData={homeData} loading={loading} onGamePress={openGame} />
         ) : route.name === 'shop' ? (
-          <FanShop
+          <ShopScreen
             initialItemId={route.itemId}
             onBack={() => setRoute(route.gameId ? { name: 'game', id: route.gameId } : { name: 'home' })}
           />

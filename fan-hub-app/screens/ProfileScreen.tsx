@@ -5,7 +5,7 @@ import { colors } from '../lib/theme';
 
 const HERO_BG = '#0d1117';
 
-export default function ProfileScreen({ onBack }: { onBack: () => void }) {
+export default function ProfileScreen({ onBack, onLoginPress }: { onBack: () => void; onLoginPress?: () => void }) {
   return (
     <View style={styles.container}>
       {/* Hero */}
@@ -47,7 +47,7 @@ export default function ProfileScreen({ onBack }: { onBack: () => void }) {
           Sign in to track your favourite players, get personalised game alerts, and unlock exclusive fan rewards.
         </Text>
 
-        <Pressable style={styles.loginBtn}>
+        <Pressable style={styles.loginBtn} onPress={onLoginPress}>
           <Text style={styles.loginBtnText}>LOG IN / CREATE ACCOUNT</Text>
         </Pressable>
 

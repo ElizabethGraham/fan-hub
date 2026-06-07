@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import FeaturedGame from '../components/FeaturedGame';
 import GameSection from '../components/GameSection';
-import PlayoffSnapshot from '../components/PlayoffSnapshot';
+import PlayoffSnapshot from '../components/PlayoffSnapshotRevamp';
 import { shared } from '../lib/theme';
 import type { HomePageData } from '../lib/homePageData';
 import type { GameDisplay } from '../lib/types';
@@ -34,15 +34,35 @@ export default function HomeScreen({
     <>
       {hasLiveGames && (
         <>
-          <GameSection title="Live Updates" description="Games in progress right now." games={liveGames} onGamePress={onGamePress} />
+          <GameSection
+            title="Live Updates"
+            description="Games in progress right now."
+            games={liveGames}
+            onGamePress={onGamePress}
+          />
           {data.playoffSnapshot && <PlayoffSnapshot data={data.playoffSnapshot} />}
         </>
       )}
       <FeaturedGame game={nextUp} onPress={onGamePress} />
       {!hasLiveGames && data.playoffSnapshot && <PlayoffSnapshot data={data.playoffSnapshot} />}
-      <GameSection title="Recent Results" description="Latest completed games." games={sections.recent} onGamePress={onGamePress} />
-      <GameSection title="Upcoming" description="Next scheduled matchups." games={upcoming} onGamePress={onGamePress} />
-      <GameSection title="Possible Games" description="Conditional playoff dates." games={sections.possibleUpcoming} onGamePress={onGamePress} />
+      <GameSection
+        title="Recent Results"
+        description="Latest completed games."
+        games={sections.recent}
+        onGamePress={onGamePress}
+      />
+      <GameSection
+        title="Upcoming"
+        description="Next scheduled matchups."
+        games={upcoming}
+        onGamePress={onGamePress}
+      />
+      <GameSection
+        title="Possible Games"
+        description="Conditional playoff dates."
+        games={sections.possibleUpcoming}
+        onGamePress={onGamePress}
+      />
     </>
   );
 }

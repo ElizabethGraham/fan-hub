@@ -157,7 +157,7 @@ export default function DotRaces({ forcedOutcome = 'random' }: { forcedOutcome?:
                   <View style={[styles.racerCore, { backgroundColor: dot.color }]} />
                 </View>
               </Animated.View>
-              <Text style={styles.end}>End</Text>
+              <FinishLine />
             </View>
           </View>
         ))}
@@ -225,6 +225,32 @@ export default function DotRaces({ forcedOutcome = 'random' }: { forcedOutcome?:
           )}
         </View>
       )}
+    </View>
+  );
+}
+
+// ── Finish line ──────────────────────────────────────────────────────────────
+function FinishLine() {
+  const COL_W = 7, ROW_H = 6;
+  const rows = Math.ceil(42 / ROW_H);
+  const cells = Array.from({ length: rows }, (_, r) =>
+    [0, 1].map(c => ({ r, c, light: (r + c) % 2 === 0 }))
+  ).flat();
+  return (
+    <View style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: COL_W * 2 }}>
+      {cells.map(({ r, c, light }) => (
+        <View
+          key={`${r}-${c}`}
+          style={{
+            position: 'absolute',
+            left: c * COL_W,
+            top: r * ROW_H,
+            width: COL_W,
+            height: ROW_H,
+            backgroundColor: light ? 'rgba(255,255,255,0.72)' : 'rgba(5,5,8,0.52)',
+          }}
+        />
+      ))}
     </View>
   );
 }
@@ -326,7 +352,6 @@ const styles = StyleSheet.create({
   racerWrap: { position: 'absolute', top: 5, bottom: 5, width: 28, marginLeft: -14, alignItems: 'center', justifyContent: 'center' },
   racer: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
   racerCore: { width: 14, height: 14, borderRadius: 7 },
-  end: { position: 'absolute', right: 10, top: 11, color: colors.faint, fontSize: 8, fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase' },
   buttons: { flexDirection: 'row', gap: 8, marginTop: 18 },
   pick: { flex: 1, borderWidth: 1, borderRadius: 12, paddingVertical: 11, alignItems: 'center', backgroundColor: colors.panelSoft, gap: 5 },
   buttonDot: { width: 11, height: 11, borderRadius: 6 },
