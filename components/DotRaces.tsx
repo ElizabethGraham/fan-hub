@@ -163,10 +163,11 @@ export default function DotRaces() {
 
   useEffect(() => {
     if (phase !== 'racing' || !winnerRef.current) return;
-    const started = performance.now();
+    let started: number | null = null;
     let frame = 0;
 
     function updateRace(now: number) {
+      if (started === null) started = now;
       const elapsed = now - started;
       const raceWinner = winnerRef.current;
       if (!raceWinner) return;

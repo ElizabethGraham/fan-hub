@@ -1,13 +1,9 @@
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
+import prettier from 'eslint-config-prettier/flat';
 
 const eslintConfig = defineConfig([
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   ...nextVitals,
   ...nextTs,
   // Override default ignores of eslint-config-next.
@@ -17,8 +13,10 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // React Native app has its own ESLint config
+    'fan-hub-app/**',
   ]),
-  ...compat.extends('eslint-config-prettier'), // Must be the last element
+  prettier, // Must be the last element
 ]);
 
 export default eslintConfig;
