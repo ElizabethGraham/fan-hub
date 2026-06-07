@@ -1,25 +1,19 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { NEWS_ITEMS } from '../lib/news';
 import { colors, shared } from '../lib/theme';
 
-const MOCK_NEWS = [
-  { tag: 'GAME RECAP', title: 'Spurs hold off Thunder in overtime thriller, 118-114', time: '2h ago' },
-  { tag: 'ROSTER', title: 'Wembanyama named All-Rookie First Team - unanimous selection', time: '5h ago' },
-  { tag: 'DRAFT', title: 'Spurs hold top-5 lottery odds heading into June draft', time: '1d ago' },
-  { tag: 'FEATURE', title: "Inside Wemby's first season: what the numbers really say", time: '2d ago' },
-  { tag: 'INJURY', title: 'Keldon Johnson listed as questionable for Thursday matchup', time: '2d ago' },
-];
-
-export default function NewsScreen() {
+export default function NewsScreen({ onOpenArticle }: { onOpenArticle: (id: string) => void }) {
   return (
     <View style={styles.sectionWrap}>
       <Text style={shared.eyebrow}>Latest</Text>
       <Text style={[shared.title, styles.title]}>Spurs News</Text>
-      {MOCK_NEWS.map((item) => (
-        <Pressable key={`${item.tag}-${item.title}`} style={styles.newsCard}>
+      {NEWS_ITEMS.map((item) => (
+        <Pressable key={item.id} onPress={() => onOpenArticle(item.id)} style={({ pressed }) => [styles.newsCard, pressed && styles.pressed]}>
           <View style={styles.newsTag}>
             <Text style={styles.newsTagText}>{item.tag}</Text>
           </View>
           <Text style={styles.newsTitle}>{item.title}</Text>
+          <Text style={styles.newsDek} numberOfLines={2}>{item.dek}</Text>
           <Text style={styles.newsTime}>{item.time}</Text>
         </Pressable>
       ))}
@@ -30,6 +24,7 @@ export default function NewsScreen() {
 const styles = StyleSheet.create({
   sectionWrap: { gap: 0 },
   title: { marginTop: 4, marginBottom: 16 },
+  pressed: { opacity: 0.82, transform: [{ scale: 0.99 }] },
   newsCard: {
     backgroundColor: colors.panel,
     borderRadius: 14,
@@ -48,5 +43,6 @@ const styles = StyleSheet.create({
   },
   newsTagText: { color: colors.teal, fontSize: 9, fontWeight: '900', letterSpacing: 1.3 },
   newsTitle: { color: colors.text, fontSize: 15, fontWeight: '700', lineHeight: 21 },
+  newsDek: { color: colors.muted, fontSize: 12, lineHeight: 17 },
   newsTime: { color: colors.faint, fontSize: 11 },
 });

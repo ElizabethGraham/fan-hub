@@ -9,8 +9,11 @@ export type ShopItem = {
   price: string;
   copy: string;
   detail: string;
-  image?: 'jersey';
+  image?: 'jersey' | 'hoodie' | 'cap' | 'ball' | 'tee' | 'tumbler';
   swatch: string;
+  category: string;
+  availability: string;
+  pickupWindow: string;
 };
 
 const SIZES = ['S', 'M', 'L', 'XL', '2XL'] as const;
@@ -27,6 +30,9 @@ export const SHOP_ITEMS: ShopItem[] = [
       'Built for the broadcast shot and the concourse walk: lightweight mesh feel, bold Fiesta color, and a game-night profile that looks like the locker room.',
     image: 'jersey',
     swatch: colors.teal,
+    category: 'Jerseys',
+    availability: 'Limited sizes',
+    pickupWindow: 'Ready tonight',
   },
   {
     id: 'court-hoodie',
@@ -36,7 +42,11 @@ export const SHOP_ITEMS: ShopItem[] = [
     copy: 'Warm-up tunnel comfort with a clean Spurs wordmark and soft heavyweight fleece.',
     detail:
       'The layer fans grab for late tipoffs, cold walks back to the car, and every road-game watch party.',
+    image: 'hoodie',
     swatch: colors.pink,
+    category: 'Outerwear',
+    availability: 'In stock',
+    pickupWindow: '20 min pickup',
   },
   {
     id: 'draft-cap',
@@ -46,7 +56,11 @@ export const SHOP_ITEMS: ShopItem[] = [
     copy: 'Structured black crown, silver mark, curved brim. Simple enough to wear every day.',
     detail:
       'A low-risk, high-rotation fan-shop piece for game day, gym bags, flights, and summer league.',
+    image: 'cap',
     swatch: colors.orange,
+    category: 'Headwear',
+    availability: 'In stock',
+    pickupWindow: '15 min pickup',
   },
   {
     id: 'mini-ball',
@@ -56,7 +70,39 @@ export const SHOP_ITEMS: ShopItem[] = [
     copy: 'A shelf piece that can still handle hallway shots during halftime.',
     detail:
       "Small enough for autographs, durable enough for indoor hoops, and easy to toss in a kid's game-day backpack.",
+    image: 'ball',
     swatch: '#c4ced4',
+    category: 'Collectibles',
+    availability: 'Arena exclusive',
+    pickupWindow: 'Fan shop only',
+  },
+  {
+    id: 'wemby-tee',
+    name: 'Wemby Name & Number Tee',
+    eyebrow: 'Player Pick',
+    price: '$42',
+    copy: 'Soft black cotton tee with a clean back print and silver chest mark.',
+    detail:
+      'A lighter everyday piece for fans who want player gear without going full jersey. Made for watch parties, travel days, and summer runs.',
+    image: 'tee',
+    swatch: colors.teal,
+    category: 'Player Gear',
+    availability: 'Best seller',
+    pickupWindow: '20 min pickup',
+  },
+  {
+    id: 'travel-tumbler',
+    name: 'Spurs Travel Tumbler',
+    eyebrow: 'Arena Essential',
+    price: '$29',
+    copy: 'Stainless-look game-day tumbler with the primary mark and Fiesta accent band.',
+    detail:
+      'A practical add-on built for commutes, morning-after recaps, and keeping the Spurs mark in rotation beyond game night.',
+    image: 'tumbler',
+    swatch: colors.orange,
+    category: 'Accessories',
+    availability: 'In stock',
+    pickupWindow: '10 min pickup',
   },
 ];
 
@@ -72,15 +118,47 @@ function ProductArt({ item, large = false }: { item: ShopItem; large?: boolean }
     );
   }
 
+  return <ProductIllustration item={item} large={large} />;
+}
+
+function ProductIllustration({ item, large = false }: { item: ShopItem; large?: boolean }) {
+  const scaleStyle = large && styles.artLarge;
   return (
-    <View style={[styles.art, large && styles.artLarge]}>
-      <View
-        style={[
-          styles.productShape,
-          { backgroundColor: item.swatch },
-          large && styles.productShapeLarge,
-        ]}
-      />
+    <View style={[styles.art, scaleStyle]}>
+      {item.image === 'hoodie' && (
+        <View style={[styles.hoodie, large && styles.hoodieLarge]}>
+          <View style={styles.hoodieHood} />
+          <Text style={styles.productWordmark}>SPURS</Text>
+          <View style={styles.hoodiePocket} />
+        </View>
+      )}
+      {item.image === 'cap' && (
+        <View style={[styles.capWrap, large && styles.capWrapLarge]}>
+          <View style={[styles.capCrown, { backgroundColor: item.swatch }]} />
+          <View style={styles.capBrim} />
+          <Text style={styles.capLogo}>SA</Text>
+        </View>
+      )}
+      {item.image === 'ball' && (
+        <View style={[styles.ball, large && styles.ballLarge]}>
+          <View style={styles.ballLineVertical} />
+          <View style={styles.ballLineHorizontal} />
+          <View style={styles.ballArcLeft} />
+          <View style={styles.ballArcRight} />
+        </View>
+      )}
+      {item.image === 'tee' && (
+        <View style={[styles.tee, large && styles.teeLarge]}>
+          <Text style={styles.teeNumber}>1</Text>
+          <Text style={styles.teeName}>WEMBY</Text>
+        </View>
+      )}
+      {item.image === 'tumbler' && (
+        <View style={[styles.tumbler, large && styles.tumblerLarge]}>
+          <View style={[styles.tumblerBand, { backgroundColor: item.swatch }]} />
+          <Text style={styles.tumblerLogo}>SA</Text>
+        </View>
+      )}
       <View style={styles.productShine} />
     </View>
   );
@@ -137,6 +215,7 @@ export function FanShopCarousel({ onOpen }: { onOpen: (itemId: string) => void }
           <Text style={[styles.itemEyebrow, { color: item.swatch }]} numberOfLines={1}>{item.eyebrow}</Text>
           <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
           <Text style={shared.body} numberOfLines={2}>{item.copy}</Text>
+          <Text style={styles.meta} numberOfLines={1}>{item.category} · {item.availability}</Text>
           <Text style={styles.tap} numberOfLines={1}>Tap to open Fan Shop</Text>
         </View>
       </Animated.View>
@@ -217,6 +296,10 @@ export default function FanShop({
             <Text style={[styles.itemEyebrow, { color: item.swatch }]}>{item.eyebrow}</Text>
             <Text style={styles.detailName}>{item.name}</Text>
             <Text style={styles.price}>{item.price}</Text>
+            <View style={styles.badgeRow}>
+              <View style={styles.badge}><Text style={styles.badgeText}>{item.category}</Text></View>
+              <View style={styles.badge}><Text style={styles.badgeText}>{item.availability}</Text></View>
+            </View>
           </View>
         </View>
         <Text style={[shared.body, styles.detailCopy]}>{item.detail}</Text>
@@ -266,7 +349,7 @@ export default function FanShop({
 
         <View style={[styles.pickup, ordered && styles.pickupReady]}>
           <Text style={styles.pickupTitle}>Pick up at the Fan Shop</Text>
-          <Text style={styles.pickupCopy}>Section 221 - Frost Bank Center - San Antonio</Text>
+          <Text style={styles.pickupCopy}>Section 221 - Frost Bank Center - {item.pickupWindow}</Text>
           {ordered && orderNumber !== null && (
             <Text style={styles.ready}>Ready for pickup in 20 min - Order #{orderNumber}</Text>
           )}
@@ -353,6 +436,7 @@ const styles = StyleSheet.create({
   carouselText: { flex: 1, gap: 4 },
   itemEyebrow: { fontSize: 10, fontWeight: '900', letterSpacing: 1.3, textTransform: 'uppercase' },
   itemName: { color: colors.text, fontSize: 17, fontWeight: '900', lineHeight: 20 },
+  meta: { color: colors.faint, fontSize: 10, fontWeight: '800', marginTop: 2 },
   tap: {
     color: colors.faint,
     fontSize: 10,
@@ -390,6 +474,116 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
     transform: [{ rotate: '-28deg' }],
   },
+  hoodie: {
+    width: 62,
+    height: 58,
+    borderRadius: 18,
+    backgroundColor: '#20232a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(232,51,138,0.44)',
+  },
+  hoodieLarge: { width: 96, height: 90, borderRadius: 26 },
+  hoodieHood: {
+    position: 'absolute',
+    top: -11,
+    width: 36,
+    height: 30,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    borderWidth: 2,
+    borderBottomWidth: 0,
+    borderColor: 'rgba(232,51,138,0.44)',
+  },
+  productWordmark: { color: '#fff', fontSize: 10, fontWeight: '900', letterSpacing: 1.1 },
+  hoodiePocket: {
+    position: 'absolute',
+    bottom: 10,
+    width: 28,
+    height: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.24)',
+  },
+  capWrap: { width: 66, height: 40, alignItems: 'center', justifyContent: 'flex-end' },
+  capWrapLarge: { transform: [{ scale: 1.45 }] },
+  capCrown: {
+    width: 50,
+    height: 30,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  capBrim: {
+    width: 64,
+    height: 10,
+    borderRadius: 999,
+    backgroundColor: '#111',
+    marginTop: -5,
+    transform: [{ rotate: '-4deg' }],
+  },
+  capLogo: { position: 'absolute', top: 12, color: '#111', fontSize: 10, fontWeight: '900' },
+  ball: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#c4ced4',
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  ballLarge: { width: 92, height: 92, borderRadius: 46 },
+  ballLineVertical: { position: 'absolute', left: '47%', top: -8, bottom: -8, width: 2, backgroundColor: '#101014' },
+  ballLineHorizontal: { position: 'absolute', left: -8, right: -8, top: '48%', height: 2, backgroundColor: '#101014' },
+  ballArcLeft: {
+    position: 'absolute',
+    left: -18,
+    top: 4,
+    width: 34,
+    height: 50,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#101014',
+  },
+  ballArcRight: {
+    position: 'absolute',
+    right: -18,
+    top: 4,
+    width: 34,
+    height: 50,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#101014',
+  },
+  tee: {
+    width: 62,
+    height: 58,
+    borderRadius: 12,
+    backgroundColor: '#0b0b0d',
+    borderWidth: 2,
+    borderColor: 'rgba(0,178,169,0.46)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teeLarge: { width: 96, height: 90, borderRadius: 18 },
+  teeNumber: { color: '#fff', fontSize: 24, fontWeight: '900', lineHeight: 26 },
+  teeName: { color: colors.teal, fontSize: 8, fontWeight: '900', letterSpacing: 1.1 },
+  tumbler: {
+    width: 42,
+    height: 68,
+    borderRadius: 13,
+    backgroundColor: '#d4d4d8',
+    borderWidth: 2,
+    borderColor: '#f4f4f5',
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tumblerLarge: { width: 64, height: 104, borderRadius: 18 },
+  tumblerBand: { position: 'absolute', left: 0, right: 0, bottom: 18, height: 12 },
+  tumblerLogo: { color: '#111', fontSize: 12, fontWeight: '900' },
   back: {
     alignSelf: 'flex-start',
     borderRadius: 999,
@@ -409,6 +603,16 @@ const styles = StyleSheet.create({
   },
   detailName: { color: colors.text, fontSize: 24, fontWeight: '900', lineHeight: 28, marginTop: 4 },
   price: { color: colors.orange, fontSize: 18, fontWeight: '900', marginTop: 8 },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
+  badge: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: colors.panelSoft,
+  },
+  badgeText: { color: colors.muted, fontSize: 9, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.8 },
   detailCopy: { marginTop: 16 },
   sizeBlock: { marginTop: 18 },
   sizeLabel: {

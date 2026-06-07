@@ -1,109 +1,109 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import type { MockAccount } from '../lib/account';
 import { teamLogoUrl } from '../lib/nba';
 import { colors } from '../lib/theme';
 
-const HERO_BG = '#0d1117';
+type ProfileAction = {
+  label: string;
+  detail: string;
+  accent: string;
+  onPress: () => void;
+};
 
-export default function ProfileScreen({ onBack, onLoginPress }: { onBack: () => void; onLoginPress?: () => void }) {
+export default function ProfileScreen({
+  onBack,
+  onLoginPress,
+  account,
+  onFavoritesPress,
+  onAlertsPress,
+  onTicketsPress,
+  onSettingsPress,
+  onTermsPress,
+  onPrivacyPress,
+}: {
+  onBack: () => void;
+  onLoginPress?: () => void;
+  account: MockAccount;
+  onFavoritesPress: () => void;
+  onAlertsPress: () => void;
+  onTicketsPress: () => void;
+  onSettingsPress: () => void;
+  onTermsPress: () => void;
+  onPrivacyPress: () => void;
+}) {
+  const actions: ProfileAction[] = [
+    { label: 'Favorite Players', detail: `${account.favoritePlayers.length} tracked Spurs`, accent: colors.teal, onPress: onFavoritesPress },
+    { label: 'Personalized Game Alerts', detail: `${account.alerts.filter((alert) => alert.enabled).length} active alert types`, accent: colors.pink, onPress: onAlertsPress },
+    { label: 'Tickets & Wallet', detail: `${account.tickets.length} upcoming ticket packages`, accent: colors.orange, onPress: onTicketsPress },
+    { label: 'App Settings', detail: 'Display, haptics, and mock confirmations', accent: '#c4ced4', onPress: onSettingsPress },
+    { label: 'Terms & Conditions', detail: 'Mock build usage terms', accent: colors.faint, onPress: onTermsPress },
+    { label: 'Privacy Policy', detail: 'Local-only data handling notes', accent: colors.faint, onPress: onPrivacyPress },
+  ];
+
   return (
     <View style={styles.container}>
-      {/* Hero */}
       <View style={styles.hero}>
         <Pressable onPress={onBack} hitSlop={12} style={styles.backBtn}>
           <Text style={styles.backChevron}>‹</Text>
           <Text style={styles.backLabel}>Back</Text>
         </Pressable>
 
-        <Text style={styles.heroTitle}>My Profile</Text>
-
-        <ProfileIllustration />
-
-        {/* Fiesta stripe */}
-        <View style={styles.fiestaStripe}>
-          <View style={[styles.fiestaSegment, { backgroundColor: colors.teal }]} />
-          <View style={[styles.fiestaSegment, { backgroundColor: colors.pink }]} />
-          <View style={[styles.fiestaSegment, { backgroundColor: colors.orange }]} />
+        <View style={styles.accountRow}>
+          <View style={styles.avatar}>
+            <Image source={{ uri: teamLogoUrl('SAS') }} style={styles.logo} />
+          </View>
+          <View style={styles.accountText}>
+            <Text style={styles.heroTitle}>My Spurs</Text>
+            <Text style={styles.name}>{account.name}</Text>
+            <Text style={styles.email}>{account.email}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Wave separator — hero color wave on app-bg */}
-      <Svg
-        width="100%"
-        height={36}
-        viewBox="0 0 400 36"
-        preserveAspectRatio="none"
-        style={styles.wave}
-      >
-        <Path
-          d="M0,0 Q80,36 160,12 Q260,-12 340,24 Q370,36 400,18 L400,0 Z"
-          fill={HERO_BG}
-        />
-      </Svg>
-
-      {/* Body */}
-      <View style={styles.body}>
-        <Text style={styles.bodyText}>
-          Sign in to track your favourite players, get personalised game alerts, and unlock exclusive fan rewards.
-        </Text>
+        <View style={styles.statsRow}>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{account.membership}</Text>
+            <Text style={styles.statLabel}>Membership</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{account.rewardBalance.toLocaleString()}</Text>
+            <Text style={styles.statLabel}>Reward pts</Text>
+          </View>
+        </View>
 
         <Pressable style={styles.loginBtn} onPress={onLoginPress}>
-          <Text style={styles.loginBtnText}>LOG IN / CREATE ACCOUNT</Text>
+          <Text style={styles.loginBtnText}>Refresh mock account</Text>
         </Pressable>
-
-        <View style={styles.listSection}>
-          {(['App Settings', 'Terms & Conditions', 'Privacy Policy'] as const).map((label, i, arr) => (
-            <Pressable key={label} style={[styles.listItem, i < arr.length - 1 && styles.listItemBorder]}>
-              <Text style={styles.listItemText}>{label}</Text>
-              <Text style={styles.listChevron}>›</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function ProfileIllustration() {
-  return (
-    <View style={styles.illustration}>
-      {/* ID card — angled left */}
-      <View style={styles.idCard}>
-        <View style={styles.idPersonCircle} />
-        <View style={styles.idPersonBody} />
-        <Text style={styles.idLabel}>ID</Text>
       </View>
 
-      {/* Avatar */}
-      <View style={styles.avatarStack}>
-        {/* Head */}
-        <View style={styles.avatarHead}>
-          <Image source={{ uri: teamLogoUrl('SAS') }} style={styles.avatarLogo} />
-        </View>
-        {/* Jersey body */}
-        <View style={styles.avatarBody} />
+      <View style={styles.fiestaStripe}>
+        <View style={[styles.fiestaSegment, { backgroundColor: colors.teal }]} />
+        <View style={[styles.fiestaSegment, { backgroundColor: colors.pink }]} />
+        <View style={[styles.fiestaSegment, { backgroundColor: colors.orange }]} />
       </View>
 
-      {/* + badge */}
-      <View style={styles.plusBadge}>
-        <Text style={styles.plusText}>+</Text>
+      <View style={styles.body}>
+        {actions.map((action) => (
+          <Pressable key={action.label} onPress={action.onPress} style={({ pressed }) => [styles.listItem, pressed && styles.pressed]}>
+            <View style={[styles.actionMark, { backgroundColor: action.accent }]} />
+            <View style={styles.listText}>
+              <Text style={styles.listItemText}>{action.label}</Text>
+              <Text style={styles.listDetail}>{action.detail}</Text>
+            </View>
+            <Text style={styles.listChevron}>›</Text>
+          </Pressable>
+        ))}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: -16,
-    marginTop: -18,
-  },
-
-  // Hero
+  container: { marginHorizontal: -16, marginTop: -18 },
   hero: {
-    backgroundColor: HERO_BG,
+    backgroundColor: '#080c10',
     paddingHorizontal: 20,
     paddingTop: 14,
-    paddingBottom: 16,
+    paddingBottom: 20,
     overflow: 'hidden',
   },
   backBtn: {
@@ -111,66 +111,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     alignSelf: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 18,
   },
   backChevron: { color: '#c4ced4', fontSize: 24, lineHeight: 26, fontWeight: '300' },
   backLabel: { color: '#c4ced4', fontSize: 13, fontWeight: '600', letterSpacing: 0.3 },
-  heroTitle: {
-    color: '#fff',
-    fontSize: 30,
-    fontWeight: '900',
-    letterSpacing: -0.5,
-    marginBottom: 24,
-  },
-
-  // Illustration
-  illustration: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    gap: 0,
-    marginBottom: 24,
-    height: 130,
-  },
-  idCard: {
-    width: 68,
-    height: 86,
-    backgroundColor: '#1e2533',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(196,206,212,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    transform: [{ rotate: '-10deg' }, { translateY: 10 }],
-    marginRight: -12,
-    zIndex: 1,
-  },
-  idPersonCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: '#c4ced4',
-  },
-  idPersonBody: {
-    width: 34,
-    height: 16,
-    borderTopLeftRadius: 17,
-    borderTopRightRadius: 17,
-    borderWidth: 2,
-    borderBottomWidth: 0,
-    borderColor: '#c4ced4',
-  },
-  idLabel: {
-    color: '#c4ced4',
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1.5,
-    marginTop: 2,
-  },
-  avatarStack: { alignItems: 'center', zIndex: 2 },
-  avatarHead: {
+  accountRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
@@ -179,90 +125,50 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 3,
     borderColor: '#c4ced4',
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
   },
-  avatarLogo: { width: 50, height: 50, resizeMode: 'contain' },
-  avatarBody: {
-    width: 88,
-    height: 68,
-    borderTopLeftRadius: 44,
-    borderTopRightRadius: 44,
-    backgroundColor: '#111',
-    borderWidth: 2,
-    borderColor: 'rgba(196,206,212,0.25)',
-    marginTop: -4,
-  },
-  plusBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 3,
-    marginLeft: -18,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  plusText: { color: '#000', fontSize: 18, fontWeight: '800', lineHeight: 22 },
-
-  // Fiesta stripe
-  fiestaStripe: { flexDirection: 'row', marginHorizontal: -20, height: 3 },
-  fiestaSegment: { flex: 1, opacity: 0.85 },
-
-  // Wave
-  wave: { marginTop: -1, backgroundColor: colors.bg },
-
-  // Body
-  body: { backgroundColor: colors.bg, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24 },
-  bodyText: {
-    color: '#a1a1aa',
-    fontSize: 14,
-    lineHeight: 21,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  loginBtn: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 32,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  loginBtnText: {
-    color: '#000',
-    fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 1.2,
-  },
-  listSection: {
+  logo: { width: 52, height: 52, resizeMode: 'contain' },
+  accountText: { flex: 1 },
+  heroTitle: { color: '#fff', fontSize: 28, fontWeight: '900' },
+  name: { color: '#fff', fontSize: 16, fontWeight: '900', marginTop: 4 },
+  email: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  statsRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
+  stat: {
+    flex: 1,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(196,206,212,0.12)',
-    backgroundColor: '#18181b',
-    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    padding: 12,
   },
+  statValue: { color: colors.text, fontSize: 14, fontWeight: '900' },
+  statLabel: { color: colors.faint, fontSize: 10, fontWeight: '900', letterSpacing: 1.1, textTransform: 'uppercase', marginTop: 4 },
+  loginBtn: {
+    alignSelf: 'flex-start',
+    marginTop: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(196,206,212,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  loginBtnText: { color: colors.muted, fontSize: 11, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 },
+  fiestaStripe: { flexDirection: 'row', height: 3 },
+  fiestaSegment: { flex: 1 },
+  body: { backgroundColor: colors.bg, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24, gap: 10 },
+  pressed: { opacity: 0.82 },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    gap: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(196,206,212,0.12)',
+    backgroundColor: colors.panel,
+    padding: 14,
   },
-  listItemBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(196,206,212,0.1)',
-  },
-  listItemText: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  listChevron: { color: '#71717a', fontSize: 20, fontWeight: '300' },
+  actionMark: { width: 8, height: 36, borderRadius: 999 },
+  listText: { flex: 1 },
+  listItemText: { color: '#fff', fontSize: 14, fontWeight: '900' },
+  listDetail: { color: colors.muted, fontSize: 12, lineHeight: 17, marginTop: 3 },
+  listChevron: { color: colors.faint, fontSize: 22, fontWeight: '300' },
 });

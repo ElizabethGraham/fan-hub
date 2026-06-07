@@ -3,18 +3,25 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import DevPanel, { type DotRaceOutcome, type NavDest } from './components/DevPanel';
 import Layout, { type TabName } from './components/Layout';
+import { MOCK_ACCOUNT, type MockAccount } from './lib/account';
 import { getGameDetailPageData, type GameDetailPageData } from './lib/gameDetailData';
 import { getHomePageData, type HomePageData } from './lib/homePageData';
 import { colors, shared } from './lib/theme';
+import AlertsScreen from './screens/AlertsScreen';
 import AuthScreen from './screens/AuthScreen';
+import FavoritesScreen from './screens/FavoritesScreen';
 import GameScreen from './screens/GameScreen';
 import HomeScreen from './screens/HomeScreen';
+import LegalScreen from './screens/LegalScreen';
+import NewsDetailScreen from './screens/NewsDetailScreen';
 import NewsScreen from './screens/NewsScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import ShopScreen from './screens/ShopScreen';
 import SplashScreen from './screens/SplashScreenRevamp';
+import TicketsScreen from './screens/TicketsScreen';
 import type { GameDisplay } from './lib/types';
 
 type Phase = 'splash' | 'onboarding' | 'auth' | 'main';
@@ -26,7 +33,13 @@ type Route =
   | { name: 'shop'; itemId?: string; gameId?: string }
   | { name: 'profile' }
   | { name: 'news' }
-  | { name: 'schedule' };
+  | { name: 'newsDetail'; id: string }
+  | { name: 'schedule' }
+  | { name: 'favorites' }
+  | { name: 'alerts' }
+  | { name: 'tickets' }
+  | { name: 'settings' }
+  | { name: 'legal'; kind: 'terms' | 'privacy' };
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>('splash');
@@ -35,6 +48,7 @@ export default function App() {
   const [route, setRoute] = useState<Route>({ name: 'home' });
   const [homeData, setHomeData] = useState<HomePageData | null>(null);
   const [gameData, setGameData] = useState<GameDetailPageData | null>(null);
+  const [account, setAccount] = useState<MockAccount>(MOCK_ACCOUNT);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [devPanelOpen, setDevPanelOpen] = useState(false);
@@ -67,6 +81,12 @@ export default function App() {
 
   function openGame(game: GameDisplay) {
     setRoute({ name: 'game', id: game.id });
+  }
+
+  function completeAuth() {
+    setAccount(MOCK_ACCOUNT);
+    setPhase('main');
+    setRoute({ name: 'profile' });
   }
 
   function handleTabPress(tab: TabName) {
@@ -138,18 +158,23 @@ export default function App() {
   if (phase === 'auth') {
     return (
       <SafeAreaProvider>
-        <AuthScreen onDone={() => setPhase('main')} />
+        <AuthScreen onDone={completeAuth} mockMode={SHOW_DEV_TOOLS} />
       </SafeAreaProvider>
     );
   }
 
   const activeTab: TabName =
-    route.name === 'news' ? 'news' :
+    route.name === 'news' || route.name === 'newsDetail' ? 'news' :
     route.name === 'schedule' || route.name === 'game' ? 'schedule' :
     route.name === 'shop' ? 'shop' :
-    route.name === 'profile' ? 'profile' : 'home';
+    route.name === 'profile' || route.name === 'favorites' || route.name === 'alerts' || route.name === 'tickets' || route.name === 'settings' || route.name === 'legal' ? 'profile' : 'home';
 
-  const routeKey = route.name === 'game' ? `game:${route.id}` : route.name === 'shop' ? `shop:${route.itemId ?? 'all'}` : route.name;
+  const routeKey =
+    route.name === 'game' ? `game:${route.id}` :
+    route.name === 'shop' ? `shop:${route.itemId ?? 'all'}` :
+    route.name === 'newsDetail' ? `news:${route.id}` :
+    route.name === 'legal' ? `legal:${route.kind}` :
+    route.name;
 
   return (
     <SafeAreaProvider>
@@ -168,9 +193,35 @@ export default function App() {
 
         {/* Route-specific content */}
         {route.name === 'profile' ? (
-          <ProfileScreen onBack={() => setRoute({ name: 'home' })} onLoginPress={() => setPhase('auth')} />
+          <ProfileScreen
+            onBack={() => setRoute({ name: 'home' })}
+            onLoginPress={() => setPhase('auth')}
+            account={account}
+            onFavoritesPress={() => setRoute({ name: 'favorites' })}
+            onAlertsPress={() => setRoute({ name: 'alerts' })}
+            onTicketsPress={() => setRoute({ name: 'tickets' })}
+            onSettingsPress={() => setRoute({ name: 'settings' })}
+            onTermsPress={() => setRoute({ name: 'legal', kind: 'terms' })}
+            onPrivacyPress={() => setRoute({ name: 'legal', kind: 'privacy' })}
+          />
         ) : route.name === 'news' ? (
-          <NewsScreen />
+          <NewsScreen onOpenArticle={(id) => setRoute({ name: 'newsDetail', id })} />
+        ) : route.name === 'newsDetail' ? (
+          <NewsDetailScreen
+            id={route.id}
+            onBack={() => setRoute({ name: 'news' })}
+            onOpenGame={(id) => setRoute({ name: 'game', id })}
+          />
+        ) : route.name === 'favorites' ? (
+          <FavoritesScreen players={account.favoritePlayers} onBack={() => setRoute({ name: 'profile' })} />
+        ) : route.name === 'alerts' ? (
+          <AlertsScreen alerts={account.alerts} onBack={() => setRoute({ name: 'profile' })} />
+        ) : route.name === 'tickets' ? (
+          <TicketsScreen tickets={account.tickets} onBack={() => setRoute({ name: 'profile' })} />
+        ) : route.name === 'settings' ? (
+          <SettingsScreen onBack={() => setRoute({ name: 'profile' })} />
+        ) : route.name === 'legal' ? (
+          <LegalScreen kind={route.kind} onBack={() => setRoute({ name: 'profile' })} />
         ) : route.name === 'schedule' ? (
           <ScheduleScreen homeData={homeData} loading={loading} onGamePress={openGame} />
         ) : route.name === 'shop' ? (

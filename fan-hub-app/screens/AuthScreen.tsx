@@ -17,7 +17,7 @@ import { colors } from '../lib/theme';
 
 type Mode = 'signin' | 'create';
 
-export default function AuthScreen({ onDone }: { onDone: () => void }) {
+export default function AuthScreen({ onDone, mockMode = false }: { onDone: () => void; mockMode?: boolean }) {
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -38,6 +38,11 @@ export default function AuthScreen({ onDone }: { onDone: () => void }) {
             <Text style={styles.subtitle}>
               {mode === 'signin' ? 'Welcome back, Spurs fan.' : 'Create your fan account.'}
             </Text>
+            {mockMode && (
+              <View style={styles.mockPill}>
+                <Text style={styles.mockPillText}>MOCK AUTH - LOCAL ONLY</Text>
+              </View>
+            )}
             {/* Fiesta stripe */}
             <View style={styles.fiestaRow}>
               <View style={[styles.fiestaChip, { backgroundColor: colors.teal }]} />
@@ -133,7 +138,7 @@ export default function AuthScreen({ onDone }: { onDone: () => void }) {
           {/* Submit */}
           <Pressable style={styles.cta} onPress={onDone}>
             <Text style={styles.ctaText}>
-              {mode === 'signin' ? 'SIGN IN' : 'CREATE ACCOUNT'}
+              {mockMode ? 'CONTINUE WITH MOCK ACCOUNT' : mode === 'signin' ? 'SIGN IN' : 'CREATE ACCOUNT'}
             </Text>
           </Pressable>
 
@@ -207,8 +212,18 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 14,
     marginTop: 6,
+    marginBottom: 12,
+  },
+  mockPill: {
+    borderRadius: 999,
+    backgroundColor: 'rgba(245,130,32,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,130,32,0.36)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     marginBottom: 16,
   },
+  mockPillText: { color: colors.orange, fontSize: 9, fontWeight: '900', letterSpacing: 1.2 },
   fiestaRow: { flexDirection: 'row', gap: 6 },
   fiestaChip: { width: 28, height: 3, borderRadius: 2 },
 
