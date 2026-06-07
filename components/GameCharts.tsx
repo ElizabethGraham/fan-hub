@@ -348,8 +348,15 @@ export default function GameCharts({
   if (!homeS || !awayS) {
     return (
       <div className="surface-panel p-4 sm:p-6">
-        <div className="text-xs font-black text-ui-muted uppercase tracking-widest mb-2">
-          {sectionLabel}
+        <div className="mb-2 flex items-center gap-2">
+          <div className="text-xs font-black text-ui-muted uppercase tracking-widest">
+            {sectionLabel}
+          </div>
+          {isPregame && (
+            <span className="rounded-full border border-fiesta-orange/30 bg-fiesta-orange/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-fiesta-orange">
+              Pregame
+            </span>
+          )}
         </div>
         <p className="text-xs text-ui-muted">
           {isPregame
@@ -362,8 +369,15 @@ export default function GameCharts({
 
   return (
     <div className="surface-panel p-4 sm:p-6">
-      <div className="text-xs font-black text-ui-muted uppercase tracking-widest mb-5">
-        {sectionLabel}
+      <div className="mb-5 flex items-center gap-2">
+        <div className="text-xs font-black text-ui-muted uppercase tracking-widest">
+          {sectionLabel}
+        </div>
+        {isPregame && (
+          <span className="rounded-full border border-fiesta-orange/30 bg-fiesta-orange/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-fiesta-orange">
+            Pregame
+          </span>
+        )}
       </div>
 
       <div className={showQuarters ? 'grid grid-cols-1 sm:grid-cols-2 gap-6' : ''}>

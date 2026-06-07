@@ -20,13 +20,23 @@ function apiKey() {
   return key;
 }
 
-async function srFetch(path: string, revalidate: number) {
+type SRFetchCacheMode =
+  | { mode: 'revalidate'; revalidate: number }
+  | { mode: 'no-store' };
+
+async function srFetch(path: string, cacheMode: SRFetchCacheMode) {
   const url = `${BASE}${path}`;
+  const fetchOptions: RequestInit & { next?: { revalidate: number } } = {
+    headers: { 'x-api-key': apiKey() },
+  };
+  if (cacheMode.mode === 'no-store') {
+    fetchOptions.cache = 'no-store';
+  } else {
+    fetchOptions.next = { revalidate: cacheMode.revalidate };
+  }
+
   try {
-    const res = await fetch(url, {
-      headers: { 'x-api-key': apiKey() },
-      next: { revalidate },
-    });
+    const res = await fetch(url, fetchOptions);
     if (!res.ok) {
       throw new Error(`Sportradar ${path} -> ${res.status} ${res.statusText}`);
     }
@@ -35,7 +45,8 @@ async function srFetch(path: string, revalidate: number) {
     logServerError('sportradar.request_failed', error, {
       access: ACCESS,
       path,
-      revalidate,
+      cacheMode: cacheMode.mode,
+      revalidate: cacheMode.mode === 'revalidate' ? cacheMode.revalidate : null,
       hasApiKey: Boolean(process.env.SPORTRADAR_API_KEY),
     });
     throw error;
@@ -44,19 +55,34 @@ async function srFetch(path: string, revalidate: number) {
 
 // Full roster + player profiles for a team. Cache for 24 h.
 export async function fetchSRTeamProfile(srTeamId: string): Promise<SRTeamProfile> {
-  return srFetch(`/teams/${srTeamId}/profile.json`, SR_TEAM_PROFILE_REVALIDATE_SECONDS);
+  return srFetch(`/teams/${srTeamId}/profile.json`, {
+    mode: 'revalidate',
+    revalidate: SR_TEAM_PROFILE_REVALIDATE_SECONDS,
+  });
 }
 
 // Box scores + per-player stats. For this assessment, cache for 2 hours to
 // reduce API pressure; a production live game hub would lower this sharply
 // during active games.
 export async function fetchSRGameSummary(srGameId: string): Promise<SRGameSummary> {
-  return srFetch(`/games/${srGameId}/summary.json`, SR_GAME_SUMMARY_REVALIDATE_SECONDS);
+  return srFetch(`/games/${srGameId}/summary.json`, {
+    mode: 'revalidate',
+    revalidate: SR_GAME_SUMMARY_REVALIDATE_SECONDS,
+  });
+}
+
+// In-progress games need the current score/stats, so this bypasses the Next
+// Data Cache. Completed games should keep using fetchSRGameSummary.
+export async function fetchSRLiveGameSummary(srGameId: string): Promise<SRGameSummary> {
+  return srFetch(`/games/${srGameId}/summary.json`, { mode: 'no-store' });
 }
 
 // Depth chart for a team. Cache for 12 h (changes only after trades/injuries).
 export async function fetchSRDepthChart(srTeamId: string): Promise<SRDepthChart> {
-  return srFetch(`/teams/${srTeamId}/depth_chart.json`, SR_DEPTH_CHART_REVALIDATE_SECONDS);
+  return srFetch(`/teams/${srTeamId}/depth_chart.json`, {
+    mode: 'revalidate',
+    revalidate: SR_DEPTH_CHART_REVALIDATE_SECONDS,
+  });
 }
 
 // Full NBA season schedule (~1 200 games). Treated as immutable for the season;
@@ -68,7 +94,10 @@ export async function fetchSRSeasonSchedule(
 ): Promise<SRSeasonSchedule> {
   return srFetch(
     `/games/${seasonYear}/${seasonType}/schedule.json`,
-    SR_SEASON_SCHEDULE_REVALIDATE_SECONDS,
+    {
+      mode: 'revalidate',
+      revalidate: SR_SEASON_SCHEDULE_REVALIDATE_SECONDS,
+    },
   );
 }
 
@@ -79,7 +108,10 @@ export async function fetchSRTeamSeasonStats(
 ): Promise<SRTeamSeasonStats> {
   return srFetch(
     `/seasons/${seasonYear}/REG/teams/${srTeamId}/statistics.json`,
-    SR_TEAM_SEASON_STATS_REVALIDATE_SECONDS,
+    {
+      mode: 'revalidate',
+      revalidate: SR_TEAM_SEASON_STATS_REVALIDATE_SECONDS,
+    },
   );
 }
 
@@ -169,6 +201,7 @@ export type SRPlayerStats = {
 };
 
 export type SRTeamGameStatistics = {
+  points?: number;
   field_goals_made?: number;
   field_goals_att?: number;
   field_goals_pct?: number;
@@ -191,6 +224,7 @@ export type SRTeamSummary = {
   alias?: string;
   market?: string;
   name?: string;
+  points?: number;
   scoring?: Array<{
     type?: string;
     number?: number;
@@ -218,6 +252,7 @@ export type SRTeamSummary = {
 
 export type SRGameSummary = {
   id?: string;
+  status?: string;
   home?: SRTeamSummary;
   away?: SRTeamSummary;
 };

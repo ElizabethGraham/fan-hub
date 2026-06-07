@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
 import { CENTRAL_TIMEZONE, DATE_KEY_LOCALE, SPURS_ALIAS } from '@/lib/constants';
 import { isPossibleGame, isPregameGame } from '@/lib/gameDisplay';
+import { getMockGameDetailPageData, isMockApiMode } from '@/lib/mockData';
 import { getNBASeasonYear } from '@/lib/nba';
 import { getSeasonSchedule } from '@/lib/schedule';
 import {
   fetchSRDepthChart,
   fetchSRGameSummary,
+  fetchSRLiveGameSummary,
   fetchSRTeamProfile,
   fetchSRTeamSeasonStats,
 } from '@/lib/sportradar';
 import {
+  applySummaryGameState,
+  applySummaryScore,
   applyDepthChart,
   applySeasonStats,
   srPlayerToNBAPlayer,
@@ -123,6 +127,16 @@ function shouldShowDotRace(game: GameDisplay, allGames: GameDisplay[]): boolean 
   return featuredGame(spursGames(allGames))?.id === game.id;
 }
 
+function centralToday(): string {
+  return new Intl.DateTimeFormat(DATE_KEY_LOCALE, {
+    timeZone: CENTRAL_TIMEZONE,
+  }).format(new Date());
+}
+
+function shouldRefreshPregameStatus(game: GameDisplay): boolean {
+  return isPregameGame(game.status) && game.date === centralToday();
+}
+
 async function lastStarterStatsForTeam(
   allGames: GameDisplay[],
   alias: string,
@@ -174,6 +188,8 @@ export async function getGameDetailMetadata(id: string): Promise<Metadata> {
 }
 
 export async function getGameDetailPageData(id: string): Promise<GameDetailPageData | null> {
+  if (isMockApiMode()) return getMockGameDetailPageData(id);
+
   let allGames: GameDisplay[] = [];
   try {
     allGames = await getSeasonSchedule();
@@ -181,8 +197,18 @@ export async function getGameDetailPageData(id: string): Promise<GameDetailPageD
     return null;
   }
 
-  const game = allGames.find((item) => item.id === id) ?? null;
+  let game = allGames.find((item) => item.id === id) ?? null;
   if (!game) return null;
+  let freshSummary = null as Awaited<ReturnType<typeof fetchSRLiveGameSummary>> | null;
+
+  if (shouldRefreshPregameStatus(game)) {
+    try {
+      freshSummary = await fetchSRLiveGameSummary(game.id);
+      game = applySummaryGameState(game, freshSummary);
+    } catch {
+      /* SR summary may be unavailable before official tipoff */
+    }
+  }
 
   const isSpursHome = game.homeTeam.alias === SPURS_ALIAS;
   const opponentAlias = isSpursHome ? game.awayTeam.alias : game.homeTeam.alias;
@@ -236,7 +262,13 @@ export async function getGameDetailPageData(id: string): Promise<GameDetailPageD
 
   if (game.status === 'final' || game.status === 'live') {
     try {
-      const split = srSummaryToSplitStats(await fetchSRGameSummary(game.id));
+      const summary =
+        freshSummary ??
+        (game.status === 'live'
+          ? await fetchSRLiveGameSummary(game.id)
+          : await fetchSRGameSummary(game.id));
+      game = applySummaryScore(game, summary);
+      const split = srSummaryToSplitStats(summary);
       homeStats = split.homeStats;
       awayStats = split.awayStats;
       chartData = split.chartData;

@@ -6,6 +6,7 @@ import type {
 } from '@/components/PlayoffSnapshot';
 import { CENTRAL_TIMEZONE, DATE_KEY_LOCALE, SPURS_ALIAS } from '@/lib/constants';
 import { isPossibleGame } from '@/lib/gameDisplay';
+import { getMockHomePageData, isMockApiMode } from '@/lib/mockData';
 import { spursOpponent, spursSeriesLabel } from '@/lib/playoffs';
 import { getSeasonSchedule } from '@/lib/schedule';
 import { fetchSRGameSummary } from '@/lib/sportradar';
@@ -232,6 +233,8 @@ async function getPlayoffSnapshot(games: GameDisplay[]): Promise<PlayoffSnapshot
 }
 
 export async function getHomePageData(): Promise<HomePageData> {
+  if (isMockApiMode()) return getMockHomePageData();
+
   const games = spursGames(await getSeasonSchedule());
 
   return {

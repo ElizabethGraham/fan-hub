@@ -262,6 +262,25 @@ export function srSummaryToSplitStats(summary: SRGameSummary) {
   };
 }
 
+function summaryTeamPoints(side: SRGameSummary['home']): number | undefined {
+  return side?.points ?? side?.statistics?.points;
+}
+
+export function applySummaryScore(game: GameDisplay, summary: SRGameSummary): GameDisplay {
+  return {
+    ...game,
+    homeTeamScore: summaryTeamPoints(summary.home) ?? game.homeTeamScore,
+    awayTeamScore: summaryTeamPoints(summary.away) ?? game.awayTeamScore,
+  };
+}
+
+export function applySummaryGameState(game: GameDisplay, summary: SRGameSummary): GameDisplay {
+  return {
+    ...applySummaryScore(game, summary),
+    status: summary.status ? normalizeSRGameStatus(summary.status) : game.status,
+  };
+}
+
 function mapTeamChartStats(side: SRGameSummary['home']): NBAGameChartData['homeStats'] | null {
   const s = side?.statistics;
   if (!s) return null;

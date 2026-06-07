@@ -13,6 +13,7 @@ vi.mock('@/lib/nba', async (importOriginal) => ({
 vi.mock('@/lib/sportradar', () => ({
   fetchSRDepthChart: vi.fn(),
   fetchSRGameSummary: vi.fn(),
+  fetchSRLiveGameSummary: vi.fn(),
   fetchSRTeamProfile: vi.fn(),
   fetchSRTeamSeasonStats: vi.fn(),
 }));
@@ -21,6 +22,7 @@ import { getSeasonSchedule } from '@/lib/schedule';
 import {
   fetchSRDepthChart,
   fetchSRGameSummary,
+  fetchSRLiveGameSummary,
   fetchSRTeamProfile,
   fetchSRTeamSeasonStats,
 } from '@/lib/sportradar';
@@ -30,7 +32,14 @@ const mockSchedule = vi.mocked(getSeasonSchedule);
 const mockProfile = vi.mocked(fetchSRTeamProfile);
 const mockDepth = vi.mocked(fetchSRDepthChart);
 const mockSummary = vi.mocked(fetchSRGameSummary);
+const mockLiveSummary = vi.mocked(fetchSRLiveGameSummary);
 const mockSeasonStats = vi.mocked(fetchSRTeamSeasonStats);
+
+function centralToday(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chicago',
+  }).format(new Date());
+}
 
 const game: GameDisplay = {
   id: 'game-1',
@@ -153,6 +162,140 @@ describe('getGameDetailPageData', () => {
     const data = await getGameDetailPageData(finalGame.id);
 
     expect(data?.showDotRace).toBe(false);
+    expect(mockLiveSummary).not.toHaveBeenCalled();
+  });
+
+  it('uses the uncached live summary score for an in-progress game', async () => {
+    const liveGame: GameDisplay = {
+      ...game,
+      id: 'live-game',
+      status: 'live',
+      homeTeamScore: 0,
+      awayTeamScore: 0,
+    };
+    mockSchedule.mockResolvedValue([liveGame]);
+    mockProfile.mockResolvedValue({ id: 'team', players: [] });
+    mockLiveSummary.mockResolvedValue({
+      home: {
+        id: 'sas-team',
+        points: 58,
+        statistics: { points: 58 },
+        players: [],
+      },
+      away: {
+        id: 'nyk-team',
+        points: 55,
+        statistics: { points: 55 },
+        players: [],
+      },
+    });
+
+    const data = await getGameDetailPageData(liveGame.id);
+
+    expect(data?.game.homeTeamScore).toBe(58);
+    expect(data?.game.awayTeamScore).toBe(55);
+    expect(mockLiveSummary).toHaveBeenCalledWith(liveGame.id);
+    expect(mockSummary).not.toHaveBeenCalled();
+  });
+
+  it('promotes a cached scheduled game to live when today summary is in progress', async () => {
+    const todayGame: GameDisplay = {
+      ...game,
+      id: 'today-game',
+      date: centralToday(),
+      status: 'scheduled',
+      homeTeamScore: 0,
+      awayTeamScore: 0,
+    };
+    mockSchedule.mockResolvedValue([todayGame]);
+    mockProfile.mockResolvedValue({ id: 'team', players: [] });
+    mockLiveSummary.mockResolvedValue({
+      status: 'inprogress',
+      home: {
+        id: 'sas-team',
+        points: 64,
+        statistics: { points: 64 },
+        players: [],
+      },
+      away: {
+        id: 'nyk-team',
+        points: 61,
+        statistics: { points: 61 },
+        players: [],
+      },
+    });
+
+    const data = await getGameDetailPageData(todayGame.id);
+
+    expect(data?.game.status).toBe('live');
+    expect(data?.game.homeTeamScore).toBe(64);
+    expect(data?.game.awayTeamScore).toBe(61);
+    expect(data?.showDotRace).toBe(true);
+    expect(mockLiveSummary).toHaveBeenCalledTimes(1);
+    expect(mockLiveSummary).toHaveBeenCalledWith(todayGame.id);
+    expect(mockSummary).not.toHaveBeenCalled();
+  });
+
+  it('does not refresh stale scheduled games from past dates', async () => {
+    const staleScheduledGame: GameDisplay = {
+      ...game,
+      id: 'stale-scheduled-game',
+      date: '2026-01-01',
+      status: 'scheduled',
+    };
+    mockSchedule.mockResolvedValue([staleScheduledGame]);
+    mockProfile.mockResolvedValue({ id: 'team', players: [] });
+    mockDepth.mockResolvedValue({ team: { depth_chart: [] } });
+    mockSeasonStats.mockResolvedValue({
+      id: 'team',
+      own_record: {
+        average: {
+          rebounds: 0,
+          assists: 0,
+          steals: 0,
+          turnovers: 0,
+        },
+      },
+      players: [],
+    });
+
+    const data = await getGameDetailPageData(staleScheduledGame.id);
+
+    expect(data?.game.status).toBe('scheduled');
+    expect(mockLiveSummary).not.toHaveBeenCalled();
+  });
+
+  it('keeps completed games on the cached summary path', async () => {
+    const finalGame: GameDisplay = {
+      ...game,
+      id: 'final-game',
+      status: 'final',
+      homeTeamScore: 0,
+      awayTeamScore: 0,
+    };
+    mockSchedule.mockResolvedValue([finalGame]);
+    mockProfile.mockResolvedValue({ id: 'team', players: [] });
+    mockSummary.mockResolvedValue({
+      home: {
+        id: 'sas-team',
+        points: 110,
+        statistics: { points: 110 },
+        players: [],
+      },
+      away: {
+        id: 'nyk-team',
+        points: 104,
+        statistics: { points: 104 },
+        players: [],
+      },
+    });
+
+    const data = await getGameDetailPageData(finalGame.id);
+
+    expect(data?.game.homeTeamScore).toBe(110);
+    expect(data?.game.awayTeamScore).toBe(104);
+    expect(mockSummary).toHaveBeenCalledWith(finalGame.id);
+    expect(mockLiveSummary).not.toHaveBeenCalled();
   });
 
   it('returns null when the game id is not in the schedule', async () => {

@@ -115,7 +115,7 @@ export default function JerseyShop() {
           >
             <span className="font-bold">📍 Pick up at the Fan Shop</span>
             <br />
-            Section 221 · AT&amp;T Center · San Antonio
+            Section 221 · Frost Bank Center · San Antonio
             {ordered && orderNumber !== null && (
               <div className="mt-2 text-[10px] text-emerald-400 font-bold">
                 Ready for pickup in 20 min · Order #{orderNumber}

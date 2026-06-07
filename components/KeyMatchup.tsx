@@ -173,12 +173,15 @@ export default function KeyMatchup({ game, chartData = null }: Props) {
           </h2>
         </div>
         <span
-          className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${
+          className={`shrink-0 ${
             game.status === 'live'
-              ? 'border-emerald-800/60 bg-emerald-900/30 text-emerald-400'
-              : 'border-zinc-700 bg-zinc-800/70 text-ui-muted'
+              ? 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-950/50 text-red-300 border border-red-700/60 shadow-[0_0_16px_rgba(239,68,68,0.18)] animate-pulse'
+              : 'rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest border-zinc-700 bg-zinc-800/70 text-ui-muted'
           }`}
         >
+          {game.status === 'live' && (
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          )}
           {statusLabel}
         </span>
       </div>

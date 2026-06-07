@@ -26,8 +26,8 @@ const STATUS_BADGE: StatusBadgeConfig = {
   live: {
     label: 'Live',
     className:
-      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800/50',
-    dot: 'bg-emerald-400 animate-pulse',
+      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-950/50 text-red-300 border border-red-700/60 shadow-[0_0_16px_rgba(239,68,68,0.18)] animate-pulse',
+    dot: 'bg-red-400 animate-pulse',
   },
 
   final: {

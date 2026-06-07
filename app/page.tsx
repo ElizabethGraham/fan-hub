@@ -38,6 +38,22 @@ export default async function Home() {
     error = true;
   }
 
+  const liveGames = data?.sections.featured
+    ? data.sections.featured.status === 'live'
+      ? [
+          data.sections.featured,
+          ...data.sections.live.filter((game) => game.id !== data?.sections.featured?.id),
+        ]
+      : data.sections.live
+    : [];
+  const nextUp = data?.sections.featured
+    ? (data.sections.confirmedUpcoming[0] ?? data.sections.featured)
+    : null;
+  const upcoming = data?.sections.featured && nextUp
+    ? data.sections.confirmedUpcoming.filter((game) => game.id !== nextUp.id)
+    : [];
+  const hasLiveGames = liveGames.length > 0;
+
   return (
     <Layout>
       {error || !data ? (
@@ -52,17 +68,23 @@ export default async function Home() {
         </div>
       ) : (
         <div className="grid gap-6">
-          {data.sections.featured ? (
+          {data.sections.featured && nextUp ? (
             <>
-              <FeaturedGame game={data.sections.featured} />
+              {hasLiveGames && (
+                <>
+                  <GameSection
+                    title="Live Updates"
+                    description="Games in progress right now."
+                    games={liveGames}
+                  />
 
-              {data.playoffSnapshot && <PlayoffSnapshot data={data.playoffSnapshot} />}
+                  {data.playoffSnapshot && <PlayoffSnapshot data={data.playoffSnapshot} />}
+                </>
+              )}
 
-              <GameSection
-                title="Live Updates"
-                description="Games in progress right now."
-                games={data.sections.live}
-              />
+              <FeaturedGame game={nextUp} />
+
+              {!hasLiveGames && data.playoffSnapshot && <PlayoffSnapshot data={data.playoffSnapshot} />}
 
               <GameSection
                 title="Recent Results"
@@ -73,7 +95,7 @@ export default async function Home() {
               <GameSection
                 title="Upcoming games"
                 description="Next scheduled matchups."
-                games={data.sections.confirmedUpcoming}
+                games={upcoming}
               />
 
               <GameSection

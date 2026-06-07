@@ -122,7 +122,9 @@ describe('GameCard — live', () => {
   beforeEach(() => render(<GameCard game={liveGame} />));
 
   it('shows "Live" status badge', () => {
-    expect(screen.getByText('Live')).toBeInTheDocument();
+    const badge = screen.getByText('Live');
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveClass('text-red-300', 'animate-pulse');
   });
 
   it('shows current scores', () => {

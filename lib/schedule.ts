@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { fetchSRSeasonSchedule } from './sportradar';
 import { srScheduleToGameDisplays } from './sportradarMapper';
 import { getNBASeasonYear, getNBASeasonPhase } from './nba';
+import { getMockSeasonSchedule, isMockApiMode } from './mockData';
 import type { GameDisplay } from './types';
 
 // For this assessment, treat published schedule data as effectively static.
@@ -33,6 +34,8 @@ const getPSTSchedule = unstable_cache(
 //   postseason      → PST only (Finals = no need for 1 240 REG games)
 //   off-season      → last REG for historical reference
 export async function getSeasonSchedule(): Promise<GameDisplay[]> {
+  if (isMockApiMode()) return getMockSeasonSchedule();
+
   const phase = getNBASeasonPhase();
   if (phase === 'postseason') return getPSTSchedule();
   return getREGSchedule();

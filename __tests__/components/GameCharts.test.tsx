@@ -74,6 +74,20 @@ describe('GameCharts — no chartData', () => {
   });
 });
 
+describe('GameCharts — pregame', () => {
+  it('shows a Pregame badge when rendering season averages', () => {
+    render(
+      <GameCharts
+        game={{ ...game, status: 'scheduled', homeTeamScore: 0, awayTeamScore: 0 }}
+        chartData={{ homeStats: teamStats, awayStats: teamStats, periods: [] }}
+      />,
+    );
+
+    expect(screen.getByText('Season Averages')).toBeInTheDocument();
+    expect(screen.getByText('Pregame')).toBeInTheDocument();
+  });
+});
+
 // ─── With team-level stats, no per-quarter breakdown ─────────────────────────
 
 describe('GameCharts — team stats, no per-quarter data', () => {
