@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Spurs Fan Hub",
+    "slug": "fan-hub-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.fan-hub-app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#09090b"
+      }
+    }
+  }
+}
