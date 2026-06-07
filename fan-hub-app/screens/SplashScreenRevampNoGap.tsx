@@ -121,7 +121,7 @@ export default function SplashScreenRevamp({ onDone }: { onDone: () => void }) {
             <AnimatedPath
               d={SASH_PATH}
               stroke={colors.teal}
-              strokeWidth="37"
+              strokeWidth="41"
               strokeLinecap="butt"
               fill="none"
               strokeDasharray={SASH_LENGTH}
@@ -130,7 +130,7 @@ export default function SplashScreenRevamp({ onDone }: { onDone: () => void }) {
             <AnimatedPath
               d="M -12 768 C 161 502 378 430 481 268 C 557 148 566 52 593 -44"
               stroke={colors.pink}
-              strokeWidth="37"
+              strokeWidth="41"
               strokeLinecap="butt"
               fill="none"
               strokeDasharray={SASH_LENGTH}
@@ -139,7 +139,7 @@ export default function SplashScreenRevamp({ onDone }: { onDone: () => void }) {
             <AnimatedPath
               d="M 21 792 C 194 526 411 454 514 292 C 590 172 599 76 626 -20"
               stroke={colors.orange}
-              strokeWidth="37"
+              strokeWidth="41"
               strokeLinecap="butt"
               fill="none"
               strokeDasharray={SASH_LENGTH}
