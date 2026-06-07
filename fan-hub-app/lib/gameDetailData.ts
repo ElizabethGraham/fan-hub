@@ -1,4 +1,5 @@
 import { detailFixture } from './fixtures';
+import { fetchJson } from './apiClient';
 import type {
   GameDisplay,
   NBAGameChartData,
@@ -25,8 +26,10 @@ const MOCK_API = process.env.EXPO_PUBLIC_MOCK_API === '1';
 
 export async function getGameDetailPageData(id: string): Promise<GameDetailPageData | null> {
   if (MOCK_API || !API_BASE) return detailFixture(id);
-  const res = await fetch(`${API_BASE}/api/mobile/games/${id}`);
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Game detail failed: ${res.status}`);
-  return res.json();
+  try {
+    return await fetchJson<GameDetailPageData>(`${API_BASE}/api/mobile/games/${id}`);
+  } catch (err) {
+    if (err instanceof Error && err.message === 'Request failed: 404') return null;
+    throw err;
+  }
 }

@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import {
   Animated,
-  Dimensions,
   Image,
   Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -83,9 +83,11 @@ function AppHeader({ onMockPress }: { onMockPress?: () => void }) {
       <View style={styles.navRow}>
         {/* Left: Mock badge */}
         <View style={styles.navLeft}>
-          <Pressable onPress={onMockPress} hitSlop={8} style={styles.mockPill}>
-            <Text style={styles.mockText}>Mock</Text>
-          </Pressable>
+          {onMockPress && (
+            <Pressable onPress={onMockPress} hitSlop={8} style={styles.mockPill}>
+              <Text style={styles.mockText}>Mock</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Center: Spurs logo */}
@@ -108,7 +110,6 @@ function AppHeader({ onMockPress }: { onMockPress?: () => void }) {
 }
 
 const TAB_IDS: TabName[] = ['home', 'news', 'schedule', 'shop', 'profile'];
-const TAB_W = Dimensions.get('window').width / TAB_IDS.length;
 
 function BottomNav({
   activeTab,
@@ -117,6 +118,8 @@ function BottomNav({
   activeTab: TabName;
   onPress: (tab: TabName) => void;
 }) {
+  const { width } = useWindowDimensions();
+  const tabWidth = width / TAB_IDS.length;
   const tabs: { id: TabName; label: string }[] = [
     { id: 'home', label: 'Home' },
     { id: 'news', label: 'News' },
@@ -125,22 +128,22 @@ function BottomNav({
     { id: 'profile', label: 'Profile' },
   ];
 
-  const indicatorX = useRef(new Animated.Value(TAB_IDS.indexOf(activeTab) * TAB_W)).current;
+  const indicatorX = useRef(new Animated.Value(TAB_IDS.indexOf(activeTab) * tabWidth)).current;
 
   useEffect(() => {
     Animated.spring(indicatorX, {
-      toValue: TAB_IDS.indexOf(activeTab) * TAB_W,
+      toValue: TAB_IDS.indexOf(activeTab) * tabWidth,
       friction: 9,
       tension: 50,
       useNativeDriver: true,
     }).start();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
+  }, [activeTab, tabWidth]);
 
   return (
     <View style={styles.bottomNav}>
       {/* Sliding teal pill that follows the active tab */}
-      <Animated.View style={[styles.tabIndicator, { transform: [{ translateX: indicatorX }] }]} />
+      <Animated.View style={[styles.tabIndicator, { width: tabWidth, transform: [{ translateX: indicatorX }] }]} />
       {tabs.map(({ id, label }) => {
         const active = activeTab === id;
         const iconColor = active ? colors.teal : '#52525b';
@@ -315,7 +318,6 @@ const styles = StyleSheet.create({
   tabIndicator: {
     position: 'absolute',
     top: 0,
-    width: TAB_W,
     height: 2,
     backgroundColor: colors.teal,
     borderRadius: 1,

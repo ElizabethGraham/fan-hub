@@ -52,6 +52,7 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
   // Fire the pixel wave once on mount
   useEffect(() => {
     const mounted = { current: true };
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
     pixels.forEach((p, i) => {
       // Diagonal distance from top-left corner, normalised 0→1
@@ -70,11 +71,13 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
           Animated.timing(opacities[i], { toValue: 0, duration: fallDur, useNativeDriver: true }),
         ]).start();
       }, waveDelay);
-
-      return () => clearTimeout(timer);
+      timers.push(timer);
     });
 
-    return () => { mounted.current = false; };
+    return () => {
+      mounted.current = false;
+      timers.forEach(clearTimeout);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
