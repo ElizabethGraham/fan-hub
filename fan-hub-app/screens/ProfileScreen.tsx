@@ -1,5 +1,9 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import ActionRow from '../components/ActionRow';
+import PassCard from '../components/PassCard';
+import StatusPill from '../components/StatusPill';
 import type { MockAccount } from '../lib/account';
+import { ACTIVITY, NOTIFICATIONS, SETUP_STEPS, WALLET_PASSES } from '../lib/experience';
 import { teamLogoUrl } from '../lib/nba';
 import { colors } from '../lib/theme';
 
@@ -18,6 +22,7 @@ export default function ProfileScreen({
   onAlertsPress,
   onTicketsPress,
   onSettingsPress,
+  onNotificationsPress,
   onTermsPress,
   onPrivacyPress,
 }: {
@@ -28,13 +33,17 @@ export default function ProfileScreen({
   onAlertsPress: () => void;
   onTicketsPress: () => void;
   onSettingsPress: () => void;
+  onNotificationsPress: () => void;
   onTermsPress: () => void;
   onPrivacyPress: () => void;
 }) {
+  const setupComplete = SETUP_STEPS.filter((step) => step.complete).length;
+  const unread = NOTIFICATIONS.filter((item) => item.unread).length;
   const actions: ProfileAction[] = [
     { label: 'Favorite Players', detail: `${account.favoritePlayers.length} tracked Spurs`, accent: colors.teal, onPress: onFavoritesPress },
     { label: 'Personalized Game Alerts', detail: `${account.alerts.filter((alert) => alert.enabled).length} active alert types`, accent: colors.pink, onPress: onAlertsPress },
-    { label: 'Tickets & Wallet', detail: `${account.tickets.length} upcoming ticket packages`, accent: colors.orange, onPress: onTicketsPress },
+    { label: 'Notification Center', detail: `${unread} unread lineup, wallet, and player updates`, accent: colors.orange, onPress: onNotificationsPress },
+    { label: 'Wallet', detail: `${WALLET_PASSES.length} tickets, orders, rewards, and coupons`, accent: colors.teal, onPress: onTicketsPress },
     { label: 'App Settings', detail: 'Display, haptics, and mock confirmations', accent: '#c4ced4', onPress: onSettingsPress },
     { label: 'Terms & Conditions', detail: 'Mock build usage terms', accent: colors.faint, onPress: onTermsPress },
     { label: 'Privacy Policy', detail: 'Local-only data handling notes', accent: colors.faint, onPress: onPrivacyPress },
@@ -82,16 +91,53 @@ export default function ProfileScreen({
       </View>
 
       <View style={styles.body}>
-        {actions.map((action) => (
-          <Pressable key={action.label} onPress={action.onPress} style={({ pressed }) => [styles.listItem, pressed && styles.pressed]}>
-            <View style={[styles.actionMark, { backgroundColor: action.accent }]} />
-            <View style={styles.listText}>
-              <Text style={styles.listItemText}>{action.label}</Text>
-              <Text style={styles.listDetail}>{action.detail}</Text>
+        <View style={styles.setupCard}>
+          <View style={styles.setupHeader}>
+            <View>
+              <Text style={styles.sectionEyebrow}>Setup</Text>
+              <Text style={styles.sectionTitle}>Game day ready</Text>
             </View>
-            <Text style={styles.listChevron}>›</Text>
-          </Pressable>
+            <StatusPill label={`${setupComplete}/${SETUP_STEPS.length}`} tone="teal" />
+          </View>
+          {SETUP_STEPS.map((step) => (
+            <View key={step.id} style={styles.stepRow}>
+              <View style={[styles.stepDot, step.complete && styles.stepDotDone]}>
+                <Text style={styles.stepCheck}>{step.complete ? '✓' : ''}</Text>
+              </View>
+              <View style={styles.stepText}>
+                <Text style={styles.stepLabel}>{step.label}</Text>
+                <Text style={styles.stepDetail}>{step.detail}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.previewBlock}>
+          <View style={styles.previewHeader}>
+            <Text style={styles.sectionTitle}>Wallet preview</Text>
+            <Pressable onPress={onTicketsPress} hitSlop={8}>
+              <Text style={styles.previewLink}>View all</Text>
+            </Pressable>
+          </View>
+          <PassCard pass={WALLET_PASSES[0]} compact />
+        </View>
+
+        {actions.map((action) => (
+          <ActionRow key={action.label} label={action.label} detail={action.detail} accent={action.accent} onPress={action.onPress} />
         ))}
+
+        <View style={styles.activityBlock}>
+          <Text style={styles.sectionTitle}>Recent activity</Text>
+          {ACTIVITY.map((item) => (
+            <View key={item.id} style={styles.activityRow}>
+              <Text style={styles.activityTime}>{item.time}</Text>
+              <View style={styles.activityText}>
+                <Text style={styles.activityLabel}>{item.label}</Text>
+                <Text style={styles.activityDetail}>{item.detail}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -155,20 +201,46 @@ const styles = StyleSheet.create({
   fiestaStripe: { flexDirection: 'row', height: 3 },
   fiestaSegment: { flex: 1 },
   body: { backgroundColor: colors.bg, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24, gap: 10 },
-  pressed: { opacity: 0.82 },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderRadius: 16,
+  setupCard: {
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(196,206,212,0.12)',
+    borderColor: 'rgba(0,178,169,0.28)',
+    backgroundColor: 'rgba(0,178,169,0.08)',
+    padding: 14,
+    gap: 12,
+  },
+  setupHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  sectionEyebrow: { color: colors.faint, fontSize: 10, fontWeight: '900', letterSpacing: 1.2, textTransform: 'uppercase' },
+  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '900' },
+  stepRow: { flexDirection: 'row', gap: 10 },
+  stepDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepDotDone: { backgroundColor: colors.teal, borderColor: colors.teal },
+  stepCheck: { color: '#052f2d', fontSize: 12, fontWeight: '900' },
+  stepText: { flex: 1 },
+  stepLabel: { color: colors.text, fontSize: 13, fontWeight: '900' },
+  stepDetail: { color: colors.muted, fontSize: 12, lineHeight: 17, marginTop: 2 },
+  previewBlock: { gap: 10 },
+  previewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  previewLink: { color: colors.teal, fontSize: 11, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 },
+  activityBlock: {
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
     backgroundColor: colors.panel,
     padding: 14,
+    gap: 12,
   },
-  actionMark: { width: 8, height: 36, borderRadius: 999 },
-  listText: { flex: 1 },
-  listItemText: { color: '#fff', fontSize: 14, fontWeight: '900' },
-  listDetail: { color: colors.muted, fontSize: 12, lineHeight: 17, marginTop: 3 },
-  listChevron: { color: colors.faint, fontSize: 22, fontWeight: '300' },
+  activityRow: { flexDirection: 'row', gap: 12 },
+  activityTime: { width: 58, color: colors.faint, fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
+  activityText: { flex: 1 },
+  activityLabel: { color: colors.text, fontSize: 13, fontWeight: '900' },
+  activityDetail: { color: colors.muted, fontSize: 12, lineHeight: 17, marginTop: 2 },
 });

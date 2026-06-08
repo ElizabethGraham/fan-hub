@@ -24,25 +24,51 @@ export default function Layout({
   activeTab,
   onTabPress,
   onMockPress,
+  onCommandPress,
 }: {
   children: ReactNode;
   routeKey: string;
   activeTab: TabName;
   onTabPress: (tab: TabName) => void;
   onMockPress?: () => void;
+  onCommandPress?: () => void;
 }) {
   const scrollRef = useRef<ScrollView>(null);
+  const routeTransition = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
-  }, [routeKey]);
+    routeTransition.setValue(0);
+    Animated.timing(routeTransition, {
+      toValue: 1,
+      duration: 220,
+      useNativeDriver: true,
+    }).start();
+  }, [routeKey, routeTransition]);
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" />
-      <AppHeader onMockPress={onMockPress} />
+      <AppHeader onMockPress={onMockPress} onCommandPress={onCommandPress} />
       <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
-        {children}
+        <Animated.View
+          style={[
+            styles.routeContent,
+            {
+              opacity: routeTransition,
+              transform: [
+                {
+                  translateY: routeTransition.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [10, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          {children}
+        </Animated.View>
         <View style={styles.footer}>
           <Text style={styles.footerTitle}>Spurs Fan Hub</Text>
           <Text style={styles.footerText}>Mock mode is active. No Sportradar quota is used.</Text>
@@ -53,7 +79,7 @@ export default function Layout({
   );
 }
 
-function AppHeader({ onMockPress }: { onMockPress?: () => void }) {
+function AppHeader({ onMockPress, onCommandPress }: { onMockPress?: () => void; onCommandPress?: () => void }) {
   return (
     <View style={styles.appHeader}>
       {/* Subtle diagonal texture */}
@@ -95,8 +121,16 @@ function AppHeader({ onMockPress }: { onMockPress?: () => void }) {
           <Image source={{ uri: teamLogoUrl('SAS') }} style={styles.headerLogo} />
         </View>
 
-        {/* Right: intentionally empty for balance */}
-        <View style={styles.navRight} />
+        <View style={styles.navRight}>
+          {onCommandPress && (
+            <Pressable onPress={onCommandPress} hitSlop={8} style={styles.commandBtn}>
+              <Svg width={19} height={19} viewBox="0 0 24 24" fill="none">
+                <Circle cx="11" cy="11" r="6" stroke="#c4ced4" strokeWidth="2" />
+                <Line x1="16" y1="16" x2="21" y2="21" stroke="#c4ced4" strokeWidth="2" strokeLinecap="round" />
+              </Svg>
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {/* Fiesta stripe */}
@@ -255,6 +289,7 @@ function TabIcon({ tab, color }: { tab: TabName; color: string }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+  routeContent: { gap: 18 },
 
   // Header
   appHeader: {
@@ -271,7 +306,17 @@ const styles = StyleSheet.create({
   },
   navLeft: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   navCenter: { flex: 1, alignItems: 'center' },
-  navRight: { flex: 1 },
+  navRight: { flex: 1, alignItems: 'flex-end' },
+  commandBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: 'rgba(196,206,212,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerLogo: { width: 38, height: 38, resizeMode: 'contain' },
   mockPill: {
     borderRadius: 999,

@@ -15,20 +15,29 @@ import HomeScreen from './screens/HomeScreen';
 import LegalScreen from './screens/LegalScreen';
 import NewsDetailScreen from './screens/NewsDetailScreen';
 import NewsScreen from './screens/NewsScreen';
-import OnboardingScreen from './screens/OnboardingScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
+import OnboardingScreen from './screens/OnboardingScreenRevamp';
 import ProfileScreen from './screens/ProfileScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
+import CommandScreen from './screens/CommandScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ShopScreen from './screens/ShopScreen';
 import SplashScreen from './screens/SplashScreenRevamp';
 import TicketsScreen from './screens/TicketsScreen';
 import type { GameDisplay } from './lib/types';
+import { SPURS_ROSTER } from './lib/roster';
 
 type Phase = 'splash' | 'onboarding' | 'auth' | 'main';
 const SHOW_DEV_TOOLS = __DEV__ || process.env.EXPO_PUBLIC_MOCK_API === '1';
 
+type OnboardingSetup = {
+  favoritePlayerIds: string[];
+  alertIds: string[];
+};
+
 type Route =
   | { name: 'home' }
+  | { name: 'command' }
   | { name: 'game'; id: string }
   | { name: 'shop'; itemId?: string; gameId?: string }
   | { name: 'profile' }
@@ -37,6 +46,7 @@ type Route =
   | { name: 'schedule' }
   | { name: 'favorites' }
   | { name: 'alerts' }
+  | { name: 'notifications' }
   | { name: 'tickets' }
   | { name: 'settings' }
   | { name: 'legal'; kind: 'terms' | 'privacy' };
@@ -49,6 +59,7 @@ export default function App() {
   const [homeData, setHomeData] = useState<HomePageData | null>(null);
   const [gameData, setGameData] = useState<GameDetailPageData | null>(null);
   const [account, setAccount] = useState<MockAccount>(MOCK_ACCOUNT);
+  const [onboardingSetup, setOnboardingSetup] = useState<OnboardingSetup | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [devPanelOpen, setDevPanelOpen] = useState(false);
@@ -84,9 +95,9 @@ export default function App() {
   }
 
   function completeAuth() {
-    setAccount(MOCK_ACCOUNT);
+    setAccount(buildAccount(onboardingSetup));
     setPhase('main');
-    setRoute({ name: 'profile' });
+    setRoute({ name: 'home' });
   }
 
   function handleTabPress(tab: TabName) {
@@ -112,6 +123,7 @@ export default function App() {
       case 'onboarding-0':
       case 'onboarding-1':
       case 'onboarding-2':
+      case 'onboarding-3':
         setOnboardingStart(Number(dest.split('-')[1]));
         setPhase('onboarding');
         return;
@@ -149,7 +161,13 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.onboardingShell}>
-          <OnboardingScreen onDone={() => setPhase('auth')} startPage={onboardingStart} />
+          <OnboardingScreen
+            onDone={(setup) => {
+              if (setup) setOnboardingSetup(setup);
+              setPhase('auth');
+            }}
+            startPage={onboardingStart}
+          />
         </SafeAreaView>
       </SafeAreaProvider>
     );
@@ -167,7 +185,7 @@ export default function App() {
     route.name === 'news' || route.name === 'newsDetail' ? 'news' :
     route.name === 'schedule' || route.name === 'game' ? 'schedule' :
     route.name === 'shop' ? 'shop' :
-    route.name === 'profile' || route.name === 'favorites' || route.name === 'alerts' || route.name === 'tickets' || route.name === 'settings' || route.name === 'legal' ? 'profile' : 'home';
+    route.name === 'profile' || route.name === 'favorites' || route.name === 'alerts' || route.name === 'notifications' || route.name === 'tickets' || route.name === 'settings' || route.name === 'legal' ? 'profile' : 'home';
 
   const routeKey =
     route.name === 'game' ? `game:${route.id}` :
@@ -183,6 +201,7 @@ export default function App() {
         activeTab={activeTab}
         onTabPress={handleTabPress}
         onMockPress={SHOW_DEV_TOOLS ? () => setDevPanelOpen(true) : undefined}
+        onCommandPress={() => setRoute({ name: 'command' })}
       >
         {/* Back button for game detail */}
         {route.name === 'game' && (
@@ -201,6 +220,7 @@ export default function App() {
             onAlertsPress={() => setRoute({ name: 'alerts' })}
             onTicketsPress={() => setRoute({ name: 'tickets' })}
             onSettingsPress={() => setRoute({ name: 'settings' })}
+            onNotificationsPress={() => setRoute({ name: 'notifications' })}
             onTermsPress={() => setRoute({ name: 'legal', kind: 'terms' })}
             onPrivacyPress={() => setRoute({ name: 'legal', kind: 'privacy' })}
           />
@@ -215,13 +235,26 @@ export default function App() {
         ) : route.name === 'favorites' ? (
           <FavoritesScreen players={account.favoritePlayers} onBack={() => setRoute({ name: 'profile' })} />
         ) : route.name === 'alerts' ? (
-          <AlertsScreen alerts={account.alerts} onBack={() => setRoute({ name: 'profile' })} />
+          <AlertsScreen
+            alerts={account.alerts}
+            onBack={() => setRoute({ name: 'profile' })}
+            onInboxPress={() => setRoute({ name: 'notifications' })}
+          />
+        ) : route.name === 'notifications' ? (
+          <NotificationsScreen onBack={() => setRoute({ name: 'profile' })} />
         ) : route.name === 'tickets' ? (
           <TicketsScreen tickets={account.tickets} onBack={() => setRoute({ name: 'profile' })} />
         ) : route.name === 'settings' ? (
           <SettingsScreen onBack={() => setRoute({ name: 'profile' })} />
         ) : route.name === 'legal' ? (
           <LegalScreen kind={route.kind} onBack={() => setRoute({ name: 'profile' })} />
+        ) : route.name === 'command' ? (
+          <CommandScreen
+            onBack={() => setRoute({ name: 'home' })}
+            onWalletPress={() => setRoute({ name: 'tickets' })}
+            onAlertsPress={() => setRoute({ name: 'notifications' })}
+            onShopPress={() => setRoute({ name: 'shop' })}
+          />
         ) : route.name === 'schedule' ? (
           <ScheduleScreen homeData={homeData} loading={loading} onGamePress={openGame} />
         ) : route.name === 'shop' ? (
@@ -244,7 +277,14 @@ export default function App() {
             <Text style={[shared.body, { marginTop: 6 }]}>{error}</Text>
           </View>
         ) : route.name === 'home' ? (
-          homeData && <HomeScreen data={homeData} onGamePress={openGame} />
+          homeData && (
+            <HomeScreen
+              data={homeData}
+              onGamePress={openGame}
+              onWalletPress={() => setRoute({ name: 'tickets' })}
+              onNotificationsPress={() => setRoute({ name: 'notifications' })}
+            />
+          )
         ) : route.name === 'game' ? (
           gameData && <GameScreen data={gameData} dotRaceOutcome={dotRaceOutcome} onShopOpen={(itemId) => setRoute({ name: 'shop', itemId, gameId: gameData.game.id })} />
         ) : null}
@@ -265,6 +305,34 @@ export default function App() {
       )}
     </SafeAreaProvider>
   );
+}
+
+function buildAccount(setup: OnboardingSetup | null): MockAccount {
+  if (!setup) return MOCK_ACCOUNT;
+  const favoriteById = new Map(SPURS_ROSTER.map((player) => [player.id, player]));
+
+  return {
+    ...MOCK_ACCOUNT,
+    favoritePlayers: setup.favoritePlayerIds.flatMap((id) => {
+      const player = favoriteById.get(id);
+      if (!player) return [];
+      return [
+        {
+          id: player.id,
+          firstName: player.firstName,
+          lastName: player.lastName,
+          reference: player.reference,
+          position: player.position,
+          reason: player.reason,
+          alertsEnabled: true,
+        },
+      ];
+    }),
+    alerts: MOCK_ACCOUNT.alerts.map((alert) => ({
+      ...alert,
+      enabled: setup.alertIds.includes(alert.id),
+    })),
+  };
 }
 
 // ─── Styles ─────────────────────────────────────────────────────────────────

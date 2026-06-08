@@ -1,91 +1,96 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import PassCard from '../components/PassCard';
+import ScreenHeader from '../components/ScreenHeader';
+import StatusPill from '../components/StatusPill';
 import type { Ticket } from '../lib/account';
+import { WALLET_PASSES, type WalletPass } from '../lib/experience';
 import { colors, shared } from '../lib/theme';
 
+const PASS_GROUPS: { title: string; kinds: WalletPass['kind'][]; empty: string }[] = [
+  { title: 'Tickets', kinds: ['ticket'], empty: 'No game tickets are ready right now.' },
+  { title: 'Pickup Orders', kinds: ['order'], empty: 'Shop pickup orders will appear here.' },
+  { title: 'Rewards & Coupons', kinds: ['reward', 'coupon'], empty: 'Saved rewards and coupons will appear here.' },
+];
+
 export default function TicketsScreen({ tickets, onBack }: { tickets: Ticket[]; onBack: () => void }) {
+  const readyCount = WALLET_PASSES.filter((pass) => pass.status === 'Ready').length;
+  const savedCount = WALLET_PASSES.filter((pass) => pass.status === 'Saved' || pass.status === 'Preparing').length;
+
   return (
     <View style={styles.wrap}>
-      <Pressable onPress={onBack} style={styles.back}>
-        <Text style={styles.backText}>Back to profile</Text>
-      </Pressable>
+      <ScreenHeader
+        eyebrow="Wallet"
+        title="Passes"
+        copy="Tickets, pickup orders, Dot Race rewards, and fan shop coupons in one Apple Wallet-style hub."
+        onBack={onBack}
+        backLabel="Back to profile"
+      />
+
       <View style={styles.walletHero}>
-        <Text style={shared.eyebrow}>Tickets</Text>
-        <Text style={styles.walletTitle}>Wallet</Text>
-        <Text style={styles.walletCopy}>Mock ticket management for entry, transfers, parking, and account review.</Text>
-      </View>
-      {tickets.map((ticket) => (
-        <View key={ticket.id} style={styles.ticket}>
-          <View style={styles.ticketStub}>
-            <Text style={styles.stubText}>SAS</Text>
-          </View>
-          <View style={styles.ticketBody}>
-            <View style={styles.ticketHeader}>
-              <Text style={styles.opponent}>Spurs vs {ticket.opponent}</Text>
-              <Text style={styles.status}>{ticket.status}</Text>
-            </View>
-            <Text style={styles.date}>{ticket.date}</Text>
-            <Text style={styles.seat}>{ticket.seat}</Text>
-            <View style={styles.actions}>
-              <Pressable style={styles.actionBtn}><Text style={styles.actionText}>Add to Wallet</Text></Pressable>
-              <Pressable style={styles.secondaryBtn}><Text style={styles.secondaryText}>Transfer</Text></Pressable>
-            </View>
-          </View>
+        <View>
+          <Text style={styles.walletTitle}>Spurs Wallet</Text>
+          <Text style={styles.walletCopy}>Mock pass center · {tickets.length} ticket packages linked</Text>
         </View>
-      ))}
+        <View style={styles.heroPills}>
+          <StatusPill label={`${readyCount} Ready`} tone="teal" />
+          <StatusPill label={`${savedCount} Saved`} tone="pink" />
+        </View>
+      </View>
+
+      {PASS_GROUPS.map((group) => {
+        const passes = WALLET_PASSES.filter((pass) => group.kinds.includes(pass.kind));
+        return (
+          <View key={group.title} style={styles.group}>
+            <Text style={styles.groupTitle}>{group.title}</Text>
+            {passes.length > 0 ? (
+              passes.map((pass) => <PassCard key={pass.id} pass={pass} />)
+            ) : (
+              <EmptyPassState label={group.empty} />
+            )}
+          </View>
+        );
+      })}
+
       <View style={shared.panel}>
-        <Text style={styles.sectionTitle}>Parking & arena</Text>
-        <Text style={shared.body}>Lot B opens 2 hours before tipoff. Mobile entry and concession rewards are mocked for demo mode.</Text>
+        <Text style={styles.sectionTitle}>Arena details</Text>
+        <Text style={shared.body}>Lot B opens 2 hours before tipoff. Mobile entry, pickup orders, and rewards are mocked locally for demo mode.</Text>
       </View>
     </View>
   );
 }
 
+function EmptyPassState({ label }: { label: string }) {
+  return (
+    <View style={styles.empty}>
+      <Text style={styles.emptyTitle}>Nothing here yet</Text>
+      <Text style={styles.emptyCopy}>{label}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  wrap: { gap: 12 },
-  back: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: colors.panel,
-  },
-  backText: { color: colors.muted, fontSize: 12, fontWeight: '800' },
+  wrap: { gap: 14 },
   walletHero: {
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 18,
     backgroundColor: '#050708',
     borderWidth: 1,
     borderColor: 'rgba(196,206,212,0.14)',
+    gap: 14,
   },
-  walletTitle: { color: colors.text, fontSize: 30, fontWeight: '900', marginTop: 4 },
-  walletCopy: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 8 },
-  ticket: {
-    flexDirection: 'row',
+  walletTitle: { color: colors.text, fontSize: 30, fontWeight: '900' },
+  walletCopy: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 5 },
+  heroPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  group: { gap: 10 },
+  groupTitle: { color: colors.text, fontSize: 16, fontWeight: '900' },
+  empty: {
     borderRadius: 18,
-    overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.panel,
+    backgroundColor: colors.panelSoft,
+    padding: 16,
   },
-  ticketStub: {
-    width: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.teal,
-  },
-  stubText: { color: '#061010', fontSize: 13, fontWeight: '900', transform: [{ rotate: '-90deg' }] },
-  ticketBody: { flex: 1, padding: 14 },
-  ticketHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
-  opponent: { flex: 1, color: colors.text, fontSize: 15, fontWeight: '900' },
-  status: { color: colors.orange, fontSize: 10, fontWeight: '900', letterSpacing: 1 },
-  date: { color: colors.muted, fontSize: 12, marginTop: 6 },
-  seat: { color: colors.text, fontSize: 12, fontWeight: '800', marginTop: 8 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
-  actionBtn: { borderRadius: 10, backgroundColor: colors.text, paddingHorizontal: 12, paddingVertical: 9 },
-  actionText: { color: colors.bg, fontSize: 11, fontWeight: '900' },
-  secondaryBtn: { borderRadius: 10, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 9 },
-  secondaryText: { color: colors.muted, fontSize: 11, fontWeight: '900' },
+  emptyTitle: { color: colors.text, fontSize: 14, fontWeight: '900' },
+  emptyCopy: { color: colors.muted, fontSize: 12, lineHeight: 18, marginTop: 5 },
   sectionTitle: { color: colors.text, fontSize: 14, fontWeight: '900', marginBottom: 6 },
 });

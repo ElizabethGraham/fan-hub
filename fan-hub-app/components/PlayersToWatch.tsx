@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   sub: { color: colors.faint, fontSize: 10, fontWeight: '900', letterSpacing: 1.1, textTransform: 'uppercase', marginTop: 1 },
   meta: { color: colors.muted, fontSize: 12, marginTop: 4 },
   plusMinus: { color: colors.muted, fontSize: 13, fontWeight: '900' },
-  plusMinusGood: { color: '#34d399' },
+  plusMinusGood: { color: colors.teal },
   statPills: { flexDirection: 'row', gap: 6, marginTop: 10 },
   statPill: { flex: 1, alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel, borderRadius: 9, paddingVertical: 7 },
   statValue: { color: colors.text, fontSize: 13, fontWeight: '900' },

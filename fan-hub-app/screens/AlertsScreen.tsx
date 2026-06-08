@@ -1,23 +1,40 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import ScreenHeader from '../components/ScreenHeader';
+import StatusPill from '../components/StatusPill';
 import type { GameAlert } from '../lib/account';
-import { colors, shared } from '../lib/theme';
+import { NOTIFICATIONS } from '../lib/experience';
+import { colors } from '../lib/theme';
 
-export default function AlertsScreen({ alerts, onBack }: { alerts: GameAlert[]; onBack: () => void }) {
+export default function AlertsScreen({
+  alerts,
+  onBack,
+  onInboxPress,
+}: {
+  alerts: GameAlert[];
+  onBack: () => void;
+  onInboxPress?: () => void;
+}) {
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(alerts.map((alert) => [alert.id, alert.enabled])),
   );
 
   return (
     <View style={styles.wrap}>
-      <Pressable onPress={onBack} style={styles.back}>
-        <Text style={styles.backText}>Back to profile</Text>
+      <ScreenHeader
+        eyebrow="Notifications"
+        title="Personalized Game Alerts"
+        copy="Mock push preferences for lineups, close games, player runs, wallet updates, and shop rewards."
+        onBack={onBack}
+        backLabel="Back to profile"
+      />
+      <Pressable onPress={onInboxPress} style={styles.inboxCard}>
+        <View>
+          <Text style={styles.inboxTitle}>Notification Center</Text>
+          <Text style={styles.inboxCopy}>{NOTIFICATIONS.filter((item) => item.unread).length} unread mock updates</Text>
+        </View>
+        <StatusPill label="Open inbox" tone="orange" />
       </Pressable>
-      <View style={shared.panel}>
-        <Text style={shared.eyebrow}>Notifications</Text>
-        <Text style={[shared.title, styles.title]}>Personalized Game Alerts</Text>
-        <Text style={shared.body}>Mock push preferences for lineups, close games, player runs, and shop rewards.</Text>
-      </View>
       {alerts.map((alert) => (
         <Pressable
           key={alert.id}
@@ -41,17 +58,20 @@ export default function AlertsScreen({ alerts, onBack }: { alerts: GameAlert[]; 
 
 const styles = StyleSheet.create({
   wrap: { gap: 12 },
-  back: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: colors.panel,
-  },
-  backText: { color: colors.muted, fontSize: 12, fontWeight: '800' },
   title: { marginTop: 4, marginBottom: 8 },
+  inboxCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(245,130,32,0.26)',
+    backgroundColor: 'rgba(245,130,32,0.08)',
+    padding: 14,
+  },
+  inboxTitle: { color: colors.text, fontSize: 14, fontWeight: '900' },
+  inboxCopy: { color: colors.muted, fontSize: 12, marginTop: 4 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

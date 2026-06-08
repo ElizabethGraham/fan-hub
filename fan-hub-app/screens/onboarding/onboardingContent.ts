@@ -25,6 +25,14 @@ export const ONBOARDING_PAGES = [
     cta: 'Allow Location',
     skip: 'Not now',
   },
+  {
+    id: 'setup',
+    accentColor: colors.teal,
+    title: 'READY FOR\nTIPOFF',
+    body: 'Pick favorite players, turn on game alerts, and keep tickets, rewards, and pickup orders in your wallet.',
+    cta: 'Finish Setup',
+    skip: null,
+  },
 ] as const;
 
 export type OnboardingPageId = (typeof ONBOARDING_PAGES)[number]['id'];
